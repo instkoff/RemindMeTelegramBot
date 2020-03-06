@@ -24,7 +24,7 @@ namespace RemindMeTelegramBotv2.Services
             var message = update.Message;
             _logger.LogInformation("Received Message from {0}", message.Chat.Id);
 
-            if (message.Type == MessageType.Text)
+            if (message.Type == MessageType.Text && message.Text.Contains("Привет".ToLower()))
             {
                 await _botClient.Client.SendTextMessageAsync(message.Chat.Id,"Привет!");
             }

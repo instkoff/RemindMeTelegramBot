@@ -27,9 +27,10 @@ namespace RemindMeTelegramBotv2
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().AddNewtonsoftJson();
-            services.AddSingleton<IBotClient, BotClient>();
+            //services.AddSingleton<IBotClient, BotClient>();
             services.AddScoped<IGetInfoService,GetInfoService>();
             services.AddScoped<IUpdateService, UpdateService>();
+            services.AddSingleton<IBotClient>(new BotClient());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
