@@ -26,7 +26,7 @@ namespace RemindMeTelegramBotv2
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
             services.AddSingleton<IBotClient, BotClient>();
             services.AddScoped<IGetInfoService,GetInfoService>();
             services.AddScoped<IUpdateService, UpdateService>();
