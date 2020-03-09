@@ -16,12 +16,25 @@ namespace RemindMeTelegramBotv2.Services
         }
         public async Task AnswerAsync(Update update)
         {
-            if (update.Type != UpdateType.Message)
-                return;
-
-            foreach (var command in _botClient.Commands)
+            switch (update.Type)
             {
-                await command.ExecuteAsync(_botClient.Client, update.Message);
+                case UpdateType.Message:
+                    foreach (var command in _botClient.Commands)
+                    {
+                        if (command.Contains(update.Message.Text))
+                            await command.ExecuteAsync(_botClient.Client, update.Message);
+                    }
+                    break;
+                case UpdateType.CallbackQuery:
+                    foreach (var command in _botClient.Commands)
+                    {
+                        if (command.Contains(update.CallbackQuery.Data))
+                            await command.ExecuteAsync(_botClient.Client, update.CallbackQuery.Message);
+                    }
+                    break;
+                default:
+                    await _botClient.Client.SendTextMessageAsync(update.Message.Chat.Id, "Команда не распознана", replyToMessageId: update.Message.MessageId);
+                    break;
             }
         }
     }

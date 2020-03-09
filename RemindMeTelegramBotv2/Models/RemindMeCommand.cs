@@ -1,29 +1,27 @@
-﻿using System.Text.RegularExpressions;
+﻿using RemindMeTelegramBotv2.DAL;
+using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace RemindMeTelegramBotv2.Models
 {
-    public class RemindMeCommand : ICommand
+    public class RemindMeCommand : Command
     {
-        public RemindMeCommand()
+        private readonly IDbRepository<RemindEntity> _dbRepository;
+        public RemindMeCommand(IDbRepository<RemindEntity> dbRepository)
         {
-            
+            _dbRepository = dbRepository;
         }
-        public string Name { get; } = "Напомнить";
+        public override string Name { get; } = "Напомнить";
 
-        public async Task ExecuteAsync(TelegramBotClient botClient, Message message)
+        public override async Task ExecuteAsync(TelegramBotClient botClient, Message message)
         {
-            if (message.Text.ToLower().Contains(Name.ToLower()))
-            {
-               var x = await botClient.SendTextMessageAsync(message.Chat.Id, "О чём вам напомнить? (Необходимо ответить на это сообщение)");
-            }
+            var remind = new RemindEntity(DateTime.Now, DateTime.Today, "Тест");
+            _dbRepository.Create(remind);
+            await botClient.SendTextMessageAsync(message.Chat.Id, "О чём вам напомнить?");
 
-            //if (botMessage != null && message.ReplyToMessage.MessageId == botMessage.MessageId)
-            //{
-            //    await botClient.SendTextMessageAsync(message.Chat.Id, "test");
-            //}
         }
     }
 }

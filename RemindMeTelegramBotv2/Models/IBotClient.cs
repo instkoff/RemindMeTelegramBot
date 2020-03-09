@@ -7,6 +7,6 @@ namespace RemindMeTelegramBotv2.Models
     public interface IBotClient
     {
         TelegramBotClient Client { get; }
-        IReadOnlyList<ICommand> Commands { get; }
+        IReadOnlyList<Command> Commands { get; }
     }
 }
