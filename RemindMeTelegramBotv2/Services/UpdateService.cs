@@ -9,24 +9,19 @@ namespace RemindMeTelegramBotv2.Services
     public class UpdateService : IUpdateService
     {
         private readonly IBotClient _botClient;
-        private readonly ILogger<UpdateService> _logger;
 
-        public UpdateService(IBotClient botClient, ILogger<UpdateService> logger)
+        public UpdateService(IBotClient botClient)
         {
             _botClient = botClient;
-            _logger = logger;
         }
         public async Task AnswerAsync(Update update)
         {
             if (update.Type != UpdateType.Message)
                 return;
 
-            var message = update.Message;
-            _logger.LogInformation("Received Message from {0}", message.Chat.Id);
-
-            if (message.Type == MessageType.Text && message.Text.Contains("Привет".ToLower()))
+            foreach (var command in _botClient.Commands)
             {
-                await _botClient.Client.SendTextMessageAsync(message.Chat.Id,"Привет!");
+                await command.ExecuteAsync(_botClient.Client, update.Message);
             }
         }
     }
