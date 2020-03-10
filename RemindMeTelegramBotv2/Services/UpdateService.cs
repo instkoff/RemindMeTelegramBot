@@ -26,7 +26,7 @@ namespace RemindMeTelegramBotv2.Services
                 case UpdateType.Message:
                     var messaage = update.Message;
                     var user = await _userRepository.GetByTlgId(update.Message.From.Username);
-                    //Получать пользователя и обрабатывать кейс состояний
+                    //v
                     if (update.Message.Text.Contains("Напомнить") &&  user.Stage  1)
                     {
                         var username = messaage.From.Username.ToString();
