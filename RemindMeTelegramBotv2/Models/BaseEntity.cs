@@ -8,12 +8,5 @@ namespace RemindMeTelegramBotv2.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
-
-        public string TlgId { get; set; }
-
-        public BaseEntity(string tlgId)
-        {
-            TlgId = tlgId;
-        }
     }
 }

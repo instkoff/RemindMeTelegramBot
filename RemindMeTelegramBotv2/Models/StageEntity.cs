@@ -4,9 +4,5 @@
     {
         public int stage_num { get; set; }
         public UserEntity UserName { get; set; }
-
-        public StageEntity(string tlgId) : base(tlgId)
-        {
-        }
     }
 }

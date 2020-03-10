@@ -1,7 +1,9 @@
-﻿using MongoDB.Driver;
+﻿using System;
+using MongoDB.Driver;
 using RemindMeTelegramBotv2.Models;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace RemindMeTelegramBotv2.DAL
@@ -17,17 +19,17 @@ namespace RemindMeTelegramBotv2.DAL
             _collection = _dbContext.GetCollection<T>(typeof(T).Name);
         }
 
-        public List<T> Get() =>
-            _collection.Find(entity => true).ToList();
+        public T Get(Expression<Func<T, bool>> predicate) =>
+            _collection.Find(predicate).FirstOrDefault();
 
         public T Get(string id) =>
             _collection.Find<T>(entity => entity.Id == id).FirstOrDefault();
 
-        public async Task<T> GetByTlgId(string tlg_id)
-        {
-           var cursor = await _collection.FindAsync<T>(entity => entity.TlgId == tlg_id);
-           return cursor.Current.FirstOrDefault();
-        }
+        //public async Task<T> FindAsync(Expression<Func<T,bool>> predicate)
+        //{
+        //   var entity = await _collection.FindAsync<T>(predicate);
+        //   return entity.Current.Any();
+        //}
         
         public T Create(T entity)
         {

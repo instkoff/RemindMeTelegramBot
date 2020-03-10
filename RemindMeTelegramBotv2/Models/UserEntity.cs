@@ -6,12 +6,13 @@ namespace RemindMeTelegramBotv2.Models
     {
         public string Name { get; set; }
         public int Stage { get; set; } = 1;
+        public string Tlg_Id { get; set; }
 
-        public UserEntity(string name, string tlgId, int stage) : base(tlgId)
+        public UserEntity(string name, int stage, string tlg_Id)
         {
             Name = name;
             Stage = stage;
-
+            Tlg_Id = tlg_Id;
         }
     }
 }

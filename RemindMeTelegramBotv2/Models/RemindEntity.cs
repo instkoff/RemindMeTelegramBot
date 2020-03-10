@@ -10,13 +10,12 @@ namespace RemindMeTelegramBotv2.Models
         public DateTime CurrentTime { get; set; }
         public string RemindText { get; set; }
 
-        public RemindEntity(string tlgId) : base(tlgId)
+        public RemindEntity()
         {
             CurrentTime = DateTime.Now;
-            tlgId = "";
         }
 
-        public RemindEntity(DateTime alarmTime, DateTime currentTime, string remindText, string tlgId) : base(tlgId)
+        public RemindEntity(DateTime alarmTime, DateTime currentTime, string remindText)
         {
             AlarmTime = alarmTime;
             CurrentTime = currentTime;

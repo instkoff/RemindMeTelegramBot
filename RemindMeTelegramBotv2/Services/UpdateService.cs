@@ -24,21 +24,41 @@ namespace RemindMeTelegramBotv2.Services
             switch (update.Type)
             {
                 case UpdateType.Message:
-                    var messaage = update.Message;
-                    var user = await _userRepository.GetByTlgId(update.Message.From.Username);
-                    //v
-                    if (update.Message.Text.Contains("Напомнить") &&  user.Stage  1)
+                    var remindCommand = new RemindMeCommand();
+                    if (update.Message.Text.Contains("Напомнить"))
                     {
-                        var username = messaage.From.Username.ToString();
-                        var tlgId = messaage.From.Id.ToString();
-                        var newUser = new UserEntity(username, tlgId, 1);
-                        var remindCommand = new RemindMeCommand();
-                        await remindCommand.ExecuteAsync(_botClient.Client, update.Message, newUser.Stage);
-                        _userRepository.Create(newUser);
+                        
+                        var message = update.Message;
+                        var currentUser = _userRepository.Get(user => user.Name == update.Message.From.Username);
+                        if (currentUser == null)
+                        {
+                            var newUser = new UserEntity(message.From.Username.ToString(), 1, message.From.Id.ToString());
+                            await remindCommand.ExecuteAsync(_botClient.Client, update.Message, newUser);
+                            newUser.Stage++;
+                            _userRepository.Create(newUser);
+                        }
+                        else if(currentUser.Stage == 1)
+                        {
+                            await remindCommand.ExecuteAsync(_botClient.Client, update.Message, currentUser);
+                            currentUser.Stage++;
+                            _userRepository.Update(currentUser.Id,currentUser);
+                        }
                     }
                     else
                     {
-                        var currentUser = _userRepository.GetByTlgId(messaage.From.Id.ToString());
+                        var message = update.Message;
+                        var currentUser = _userRepository.Get(user=>user.Name==message.From.Username);
+                        if (currentUser == null) break;
+                        if (currentUser.Stage > 1)
+                        {
+                            await remindCommand.ExecuteAsync(_botClient.Client, update.Message, currentUser);
+                            currentUser.Stage = currentUser.Stage < 4 ? currentUser.Stage++ : currentUser.Stage = 1;
+                            _userRepository.Update(currentUser.Id, currentUser);
+                        }
+                        else
+                        {
+                            await _botClient.Client.SendTextMessageAsync(message.Chat.Id, "Что то пошло не так");
+                        }
 
                     }
                     break;
