@@ -1,5 +1,4 @@
-﻿using RemindMeTelegramBotv2.DAL;
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Telegram.Bot;
@@ -7,20 +6,27 @@ using Telegram.Bot.Types;
 
 namespace RemindMeTelegramBotv2.Models
 {
-    public class RemindMeCommand : Command
+    public class RemindMeCommand
     {
-        private readonly IDbRepository<RemindEntity> _dbRepository;
-        public RemindMeCommand(IDbRepository<RemindEntity> dbRepository)
-        {
-            _dbRepository = dbRepository;
-        }
-        public override string Name { get; } = "Напомнить";
+        public string Name { get; } = "Напомнить";
 
-        public override async Task ExecuteAsync(TelegramBotClient botClient, Message message)
+        public async Task<RemindEntity> ExecuteAsync(TelegramBotClient botClient, Message message, int userStage)
         {
-            var remind = new RemindEntity(DateTime.Now, DateTime.Today, "Тест");
-            _dbRepository.Create(remind);
-            await botClient.SendTextMessageAsync(message.Chat.Id, "О чём вам напомнить?");
+            var remind = new RemindEntity();
+            switch (userStage)
+            {
+                case 1:
+                    await botClient.SendTextMessageAsync(message.Chat.Id, "О чём вам напомнить?");
+                    break;
+                case 2:
+                    remind.RemindText = message.Text;
+                    break;
+                case 3:
+                    await botClient.SendTextMessageAsync(message.Chat.Id, "Когда напомнить?");
+                    break;
+                case 4:
+                    return remind
+            }
 
         }
     }

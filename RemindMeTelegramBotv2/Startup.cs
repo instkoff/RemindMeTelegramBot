@@ -31,6 +31,7 @@ namespace RemindMeTelegramBotv2
             services.Configure<DatabaseSettings>(Configuration.GetSection(nameof(DatabaseSettings)));
             services.AddSingleton<IDatabaseSettings>(sp => sp.GetRequiredService<IOptions<DatabaseSettings>>().Value);
             services.AddSingleton(typeof(IDbRepository<>), typeof(DbRepository<>));
+            services.AddSingleton<IDbContext,DbContext>();
             services.AddControllers().AddNewtonsoftJson();
             services.AddSingleton<IBotClient,BotClient>();
             services.AddScoped<IGetInfoService,GetInfoService>();

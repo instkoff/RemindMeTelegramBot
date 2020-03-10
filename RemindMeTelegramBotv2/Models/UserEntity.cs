@@ -5,20 +5,13 @@ namespace RemindMeTelegramBotv2.Models
     public class UserEntity : BaseEntity
     {
         public string Name { get; set; }
-        public States State { get; private set; }
-        public List<RemindEntity> RemindsList { get; set; }
+        public int Stage { get; set; } = 1;
 
-        public UserEntity(string name, States state, List<RemindEntity> remindsList)
+        public UserEntity(string name, string tlgId, int stage) : base(tlgId)
         {
             Name = name;
-            State = state;
-            RemindsList = remindsList;
+            Stage = stage;
+
         }
-    }
-    public enum States
-    {
-        S_START = 0,
-        S_ENTER_REMIND_TEXT = 1,
-        S_ENTER_ALARM_TIME = 2
     }
 }
