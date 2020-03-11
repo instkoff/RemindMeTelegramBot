@@ -13,45 +13,29 @@ namespace RemindMeTelegramBotv2.Models
         public string TelegramUsername { get; set; }
         public string TelegramUsernameId { get; set; }
 
-        public int stage;
+        private State state;
 
+        public enum State
+        {
+            Start,
+            EnterText,
+            EnterDate
+        }
 
         public RemindEntity(string usernameId, string username)
         {
-            stage = 1;
+            state = State.Start;
             TelegramUsernameId = usernameId;
             TelegramUsername = username;
         }
 
-        public (string, int) StageText(string id)
+        public State GetState()
         {
-            if (stage == 1)
-                return ("Введите текст напомнинания", stage);
-            if (stage == 2)
-                return ("Введите время когда вам напомнить", stage);
-            else
-                return("Создал напоминание", stage);
+            return state;
         }
-        public bool SetParam(string param)
+        public void SetState(State currentState)
         {
-            if (stage == 1)
-                RemindText = param;
-            if (stage == 2)
-            {
-                DateTime outDate;
-                string[] formats = { "dd/MM/yyyy hh:mm", "dd-MM-yyyy hh:mm", "dd:MM:yyyy hh:mm", "dd.MM.yyyy hh:mm",
-                    "dd/MM/yy hh:mm"};
-                if (DateTime.TryParseExact(param, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out outDate))
-                {
-                    AlarmTime = outDate;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            stage++;
-            return true;
+            state = currentState;
         }
 
     }
