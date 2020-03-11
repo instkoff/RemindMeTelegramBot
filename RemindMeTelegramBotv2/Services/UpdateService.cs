@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic;
@@ -27,21 +28,34 @@ namespace RemindMeTelegramBotv2.Services
             var message = update.Message;
             if (message.Text == "/addremind")
             {
-                var remind = new RemindEntity(message.From.Id.ToString(),message.Chat.Id.ToString(),message.From.Username);
+                var remind = new RemindEntity(message.From.Id.ToString(),message.From.Username);
                 remindsDictionary.Add(message.From.Id.ToString(), remind);
                 var text = remind.StageText(remind.TelegramId);
                 await _botClient.Client.SendTextMessageAsync(message.Chat.Id, text.Item1);
                 return;
             }
-
             else if (remindsDictionary.ContainsKey(message.From.Id.ToString()))
             {
                 var remind = remindsDictionary[message.From.Id.ToString()];
-                remind.SetParam(message.Text);
-                var text = remind.StageText(remind.TelegramId);
-                await _botClient.Client.SendTextMessageAsync(message.Chat.Id, text.Item1);
-            }
+                if (remind.SetParam(message.Text))
+                {
+                    var text = remind.StageText(remind.TelegramId);
+                    await _botClient.Client.SendTextMessageAsync(message.Chat.Id, text.Item1);
+                }
+                else
+                {
+                    await _botClient.Client.SendTextMessageAsync(message.Chat.Id, "Что то пошло не так, попробуем ещё раз?");
+                    var text = remind.StageText(remind.TelegramId);
+                    await _botClient.Client.SendTextMessageAsync(message.Chat.Id, text.Item1);
+                }
+                if (remind.stage == 3)
+                {
+                    remind.CurrentTime = DateTime.Now;
+                    _remindRepository.Create(remind);
+                    remindsDictionary.Clear();
+                }
 
+            }
 
         }
     }
