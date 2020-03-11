@@ -11,15 +11,15 @@ namespace RemindMeTelegramBotv2.Models
         public DateTime CurrentTime { get; set; }
         public string RemindText { get; set; }
         public string TelegramUsername { get; set; }
-        public string TelegramId { get; set; }
+        public string TelegramUsernameId { get; set; }
 
         public int stage;
 
 
-        public RemindEntity(string id, string username)
+        public RemindEntity(string usernameId, string username)
         {
             stage = 1;
-            TelegramId = id;
+            TelegramUsernameId = usernameId;
             TelegramUsername = username;
         }
 

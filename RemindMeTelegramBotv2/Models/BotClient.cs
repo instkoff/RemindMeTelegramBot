@@ -19,6 +19,7 @@ namespace RemindMeTelegramBotv2.Models
             Client = GetClient().Result;
             commandsList = new List<Command>
             {
+                new RemindMeCommand(),
                 new SendKeyboardCommand()
             };
         }

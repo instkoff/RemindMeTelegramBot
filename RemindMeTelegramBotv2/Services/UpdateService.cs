@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
 using RemindMeTelegramBotv2.DAL;
 using RemindMeTelegramBotv2.Models;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
 namespace RemindMeTelegramBotv2.Services
 {
@@ -15,7 +12,8 @@ namespace RemindMeTelegramBotv2.Services
         private readonly IBotClient _botClient;
         private readonly IDbRepository<RemindEntity> _remindRepository;
         private readonly IDbRepository<UserEntity> _userRepository;
-        static Dictionary<string, RemindEntity> remindsDictionary = new Dictionary<string, RemindEntity>();
+
+        private static Command fixedCommand;
 
         public UpdateService(IBotClient botClient, IDbRepository<RemindEntity> remindRepository, IDbRepository<UserEntity> userRepository)
         {
@@ -26,35 +24,26 @@ namespace RemindMeTelegramBotv2.Services
         public async Task AnswerAsync(Update update)
         {
             var message = update.Message;
-            if (message.Text == "/addremind")
+            if (fixedCommand != null && fixedCommand.isComplete == false)
             {
-                var remind = new RemindEntity(message.From.Id.ToString(),message.From.Username);
-                remindsDictionary.Add(message.From.Id.ToString(), remind);
-                var text = remind.StageText(remind.TelegramId);
-                await _botClient.Client.SendTextMessageAsync(message.Chat.Id, text.Item1);
+                await fixedCommand.ExecuteAsync(_botClient.Client, message, _remindRepository);
+            }
+            else
+            {
+                fixedCommand = null;
                 return;
             }
-            else if (remindsDictionary.ContainsKey(message.From.Id.ToString()))
-            {
-                var remind = remindsDictionary[message.From.Id.ToString()];
-                if (remind.SetParam(message.Text))
-                {
-                    var text = remind.StageText(remind.TelegramId);
-                    await _botClient.Client.SendTextMessageAsync(message.Chat.Id, text.Item1);
-                }
-                else
-                {
-                    await _botClient.Client.SendTextMessageAsync(message.Chat.Id, "Что то пошло не так, попробуем ещё раз?");
-                    var text = remind.StageText(remind.TelegramId);
-                    await _botClient.Client.SendTextMessageAsync(message.Chat.Id, text.Item1);
-                }
-                if (remind.stage == 3)
-                {
-                    remind.CurrentTime = DateTime.Now;
-                    _remindRepository.Create(remind);
-                    remindsDictionary.Clear();
-                }
 
+            if(fixedCommand == null)
+            {
+                foreach (var command in _botClient.Commands)
+                {
+                    if (command.Contains(message.Text))
+                    {
+                        fixedCommand = command;
+                        await command.ExecuteAsync(_botClient.Client, message, _remindRepository);
+                    }
+                }
             }
 
         }
