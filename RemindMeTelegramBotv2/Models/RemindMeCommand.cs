@@ -22,7 +22,8 @@ namespace RemindMeTelegramBotv2.Models
             if (message.Text == "/reset")
             {
                 await botClient.SendTextMessageAsync(message.Chat.Id, "Отмена...");
-                remindRepository.Remove(remindEntity.Id);
+                if (remindEntity != null)
+                    remindRepository.Remove(remindEntity.Id);
                 base.isComplete = true;
                 return;
             }

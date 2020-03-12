@@ -7,7 +7,7 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RemindMeTelegramBotv2.Models
 {
-    public class SendKeyboardCommand : Command
+    public class StartCommand : Command
     {
         public override string Name => "/start";
 
@@ -29,7 +29,7 @@ namespace RemindMeTelegramBotv2.Models
                             //InlineKeyboardButton.WithCallbackData("2.2", "22"),
                         }
                     });
-            await botClient.SendTextMessageAsync(message.Chat.Id, "Клавиатура", replyMarkup: inlineKeyboard);
+            await botClient.SendTextMessageAsync(message.Chat.Id,"Клавиатура", replyMarkup: inlineKeyboard);
             base.isComplete = true;
         }
     }

@@ -20,7 +20,7 @@ namespace RemindMeTelegramBotv2.Models
             commandsList = new List<Command>
             {
                 new RemindMeCommand(),
-                new SendKeyboardCommand()
+                new StartCommand()
             };
         }
 
