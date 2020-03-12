@@ -20,32 +20,31 @@ namespace RemindMeTelegramBotv2.Services
             _remindRepository = remindRepository;
             _botClient = botClient;
         }
-        public async Task AnswerAsync(Update update)
+        public async Task AnswerOnMessageAsync(Update update)
         {
-            Message message;
-            string commandName = "/start";
-
-            if (!(update.Type != UpdateType.CallbackQuery || update.Type != UpdateType.Message))
-            {
+            if (update == null)
                 return;
-            }
-            else if(update.Type == UpdateType.CallbackQuery)
-            {
-                message = update.CallbackQuery.Message;
-                commandName = update.CallbackQuery.Data;
-            }
-            else
-            {
-                message = update.Message;
-            }
 
+            var message = update.Message;
+
+            await CommandProcessorAsync(message);
+        }
+        public async Task AnswerOnCallbackQueryAsync(Update update)
+        {
+            if (update == null)
+                return;
+        }
+
+        private async Task CommandProcessorAsync(Message message)
+        {
             if (fixedCommand != null)
             {
                 if (fixedCommand.isComplete == false)
                     await fixedCommand.ExecuteAsync(_botClient.Client, message, _remindRepository);
                 if (fixedCommand.isComplete == true)
                 {
-                    await _botClient.Commands.SingleOrDefault(c => c.Name == "/start")?.ExecuteAsync(_botClient.Client, message, _remindRepository);
+                    await _botClient.Commands.SingleOrDefault(c => c.Name == "/start")
+                        ?.ExecuteAsync(_botClient.Client, message, _remindRepository);
                     fixedCommand = null;
                     return;
                 }
@@ -55,14 +54,14 @@ namespace RemindMeTelegramBotv2.Services
             {
                 foreach (var command in _botClient.Commands)
                 {
-                    if (command.Contains(commandName))
+                    if (command.Contains(message.Text))
                     {
                         fixedCommand = command;
                         await command.ExecuteAsync(_botClient.Client, message, _remindRepository);
                     }
                 }
             }
-
         }
+
     }
 }

@@ -5,6 +5,7 @@ namespace RemindMeTelegramBotv2.Services
 {
     public interface IUpdateService
     {
-        Task AnswerAsync(Update update);
+        Task AnswerOnMessageAsync(Update update);
+        Task AnswerOnCallbackQueryAsync(Update update);
     }
 }
