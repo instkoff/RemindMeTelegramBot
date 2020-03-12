@@ -13,22 +13,24 @@ namespace RemindMeTelegramBotv2.Models
 
         public override async Task ExecuteAsync(TelegramBotClient botClient, Message message, IDbRepository<RemindEntity> repository)
         {
+            base.isComplete = false;
             var inlineKeyboard = new InlineKeyboardMarkup(new[]
                                 {
                         // first row
                         new []
                         {
                             InlineKeyboardButton.WithCallbackData("Создать напоминание", "/addremind"),
-                            InlineKeyboardButton.WithCallbackData("1.2", "12"),
+                            InlineKeyboardButton.WithCallbackData("Удалить напоминание", "/delremind"),
                         },
                         // second row
                         new []
                         {
-                            InlineKeyboardButton.WithCallbackData("2.1", "21"),
-                            InlineKeyboardButton.WithCallbackData("2.2", "22"),
+                            InlineKeyboardButton.WithCallbackData("Вывести список моих напоминаний", "/myremindslist"),
+                            //InlineKeyboardButton.WithCallbackData("2.2", "22"),
                         }
                     });
             await botClient.SendTextMessageAsync(message.Chat.Id, "Клавиатура", replyMarkup: inlineKeyboard);
+            base.isComplete = true;
         }
     }
 }

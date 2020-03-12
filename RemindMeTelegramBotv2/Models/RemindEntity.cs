@@ -13,7 +13,7 @@ namespace RemindMeTelegramBotv2.Models
         public string TelegramUsername { get; set; }
         public string TelegramUsernameId { get; set; }
 
-        private State state;
+        public State state;
 
         public enum State
         {

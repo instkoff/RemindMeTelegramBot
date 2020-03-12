@@ -20,17 +20,18 @@ namespace RemindMeTelegramBotv2.DAL
         }
 
         public T Get(Expression<Func<T, bool>> predicate) =>
-            _collection.Find(predicate).FirstOrDefault();
+            _collection.Find(predicate).Sort("{_id:-1}").Limit(1).SingleOrDefault();
 
         public T Get(string id) =>
             _collection.Find<T>(entity => entity.Id == id).FirstOrDefault();
+
 
         //public async Task<T> FindAsync(Expression<Func<T,bool>> predicate)
         //{
         //   var entity = await _collection.FindAsync<T>(predicate);
         //   return entity.Current.Any();
         //}
-        
+
         public T Create(T entity)
         {
             _collection.InsertOne(entity);
