@@ -11,7 +11,7 @@ namespace RemindMeTelegramBotv2.Models
     {
         public override string Name => "/start";
 
-        public override async Task ExecuteAsync(TelegramBotClient botClient, Message message, IDbRepository<RemindEntity> repository)
+        public override async Task ExecuteAsync(TelegramBotClient botClient, MessageInfo message, IDbRepository<RemindEntity> repository)
         {
             base.isComplete = false;
             var inlineKeyboard = new InlineKeyboardMarkup(new[]
@@ -29,7 +29,7 @@ namespace RemindMeTelegramBotv2.Models
                             //InlineKeyboardButton.WithCallbackData("2.2", "22"),
                         }
                     });
-            await botClient.SendTextMessageAsync(message.Chat.Id,"Клавиатура", replyMarkup: inlineKeyboard);
+            await botClient.SendTextMessageAsync(message.ChatId,"Клавиатура", replyMarkup: inlineKeyboard);
             base.isComplete = true;
         }
     }

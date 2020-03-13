@@ -22,10 +22,10 @@ namespace RemindMeTelegramBotv2.Controllers
             switch (update.Type)
             {
                 case UpdateType.Message:
-                    await _updateService.AnswerOnMessageAsync(update);
+                    await _updateService.AnswerOnMessageAsync(update.Message);
                     break;
                 case UpdateType.CallbackQuery:
-                    await _updateService.AnswerOnCallbackQueryAsync(update);
+                    await _updateService.AnswerOnCallbackQueryAsync(update.CallbackQuery);
                     break;
             }
             return Ok();

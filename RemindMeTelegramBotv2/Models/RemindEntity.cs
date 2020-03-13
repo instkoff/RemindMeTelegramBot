@@ -11,7 +11,7 @@ namespace RemindMeTelegramBotv2.Models
         public DateTime CurrentTime { get; set; }
         public string RemindText { get; set; }
         public string TelegramUsername { get; set; }
-        public string TelegramUsernameId { get; set; }
+        public int TelegramUsernameId { get; set; }
 
         public State state;
 
@@ -22,7 +22,7 @@ namespace RemindMeTelegramBotv2.Models
             EnterDate
         }
 
-        public RemindEntity(string usernameId, string username)
+        public RemindEntity(int usernameId, string username)
         {
             state = State.Start;
             TelegramUsernameId = usernameId;
