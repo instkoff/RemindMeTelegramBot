@@ -11,14 +11,16 @@ namespace RemindMeTelegramBotv2.Services
     {
         private readonly IBotClient _botClient;
         private readonly IDbRepository<RemindEntity> _remindRepository;
+        private readonly IRemindService _remindService;
 
         private static Dictionary<int,Command> _fixedCommands = new Dictionary<int, Command>();
 
 
-        public UpdateService(IBotClient botClient, IDbRepository<RemindEntity> remindRepository)
+        public UpdateService(IBotClient botClient, IDbRepository<RemindEntity> remindRepository, IRemindService remindService)
         {
             _remindRepository = remindRepository;
             _botClient = botClient;
+            _remindService = remindService;
         }
         public async Task AnswerOnMessageAsync(Message message)
         {
@@ -71,7 +73,7 @@ namespace RemindMeTelegramBotv2.Services
         {
             if (commandText == "/addremind")
             {
-                return new RemindMeCommand();
+                return new RemindMeCommand(_remindService);
             }
 
             foreach (var command in _botClient.Commands)

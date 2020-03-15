@@ -14,6 +14,13 @@ namespace RemindMeTelegramBotv2.Models
 
         static Dictionary<int, RemindEntity> _remindEntities = new Dictionary<int, RemindEntity>();
 
+        private readonly IRemindService _remindService;
+
+        public RemindMeCommand(IRemindService remindService)
+        {
+            _remindService = remindService;
+        }
+
         public override async Task ExecuteAsync(TelegramBotClient botClient, MessageInfo message, IDbRepository<RemindEntity> remindRepository)
         {
             base.isComplete = false;
@@ -24,7 +31,7 @@ namespace RemindMeTelegramBotv2.Models
             {
                 remindEntity = _remindEntities[message.FromId];
                 state = remindEntity.GetState();
-                //remindEntity.onCreated += RemindService.FillRemindsList; <---- Здесь хочу подписаться на метод из RemindService
+                remindEntity.onCreated += _remindService.FillRemindsList; //<---- Спросить у Дамира
             }
 
 

@@ -36,17 +36,19 @@ namespace RemindMeTelegramBotv2.Services
             remindsList.Sort((a, b) => a.EndTime.CompareTo(b.EndTime));
             foreach (var remind in remindsList)
             {
-                _queueOfReminds.Enqueue(remind);
+                if (!(_queueOfReminds.Contains(remind)))
+                {
+                    _queueOfReminds.Enqueue(remind);
+                }
+
             }
-
         }
-
 
         private void DingDong()
         {
             if (_queueOfReminds.Count > 0)
             {
-                while (_queueOfReminds.Peek().EndTime <= DateTime.Now.ToUniversalTime())
+                while (_queueOfReminds.Count > 0 && _queueOfReminds.Peek().EndTime <= DateTime.Now.ToUniversalTime())
                 {
                     var remind = _queueOfReminds.Dequeue();
                     _botClient.Client.SendTextMessageAsync(remind.TelegramChatId, remind.RemindText);
