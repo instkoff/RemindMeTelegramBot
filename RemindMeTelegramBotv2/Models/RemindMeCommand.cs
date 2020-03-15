@@ -24,7 +24,7 @@ namespace RemindMeTelegramBotv2.Models
             {
                 remindEntity = _remindEntities[message.FromId];
                 state = remindEntity.GetState();
-                //remindEntity.onCreated += RemindService.FillRemindsList;
+                //remindEntity.onCreated += RemindService.FillRemindsList; <---- Здесь хочу подписаться на метод из RemindService
             }
 
 
