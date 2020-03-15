@@ -1,5 +1,4 @@
 ﻿using MongoDB.Driver;
-using RemindMeTelegramBotv2.Models;
 
 namespace RemindMeTelegramBotv2.DAL
 {

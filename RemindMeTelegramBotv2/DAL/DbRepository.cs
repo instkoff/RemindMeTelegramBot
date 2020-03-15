@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using MongoDB.Driver.Linq;
 
 namespace RemindMeTelegramBotv2.DAL
 {
@@ -20,17 +21,16 @@ namespace RemindMeTelegramBotv2.DAL
         }
 
         public T Get(Expression<Func<T, bool>> predicate) =>
-            _collection.Find(predicate).Sort("{_id:-1}").Limit(1).SingleOrDefault();
+            _collection.Find(predicate).SingleOrDefault();
 
         public T Get(string id) =>
-            _collection.Find<T>(entity => entity.Id == id).FirstOrDefault();
+            _collection.Find(entity => entity.Id == id).FirstOrDefault();
 
-
-        //public async Task<T> FindAsync(Expression<Func<T,bool>> predicate)
-        //{
-        //   var entity = await _collection.FindAsync<T>(predicate);
-        //   return entity.Current.Any();
-        //}
+        public IMongoQueryable<T> GetFiltered(Expression<Func<T, bool>> predicate)
+        {
+            var entity = _collection.AsQueryable().Where(predicate);
+            return entity;
+        }
 
         public T Create(T entity)
         {

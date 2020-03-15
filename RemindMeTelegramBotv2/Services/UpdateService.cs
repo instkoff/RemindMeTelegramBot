@@ -54,14 +54,26 @@ namespace RemindMeTelegramBotv2.Services
 
             if (command != null)
             {
+                if (_fixedCommands.ContainsKey(messageInfo.FromId))
+                {
+                    await _botClient.Client.SendTextMessageAsync(messageInfo.ChatId,
+                        "Вы повторно ввели команду, закончите или сбросьте текущую");
+                    return;
+                }
+
+                _fixedCommands.Add(messageInfo.FromId, command);
                 await command.ExecuteAsync(_botClient.Client, messageInfo, _remindRepository);
-                if(!(_fixedCommands.ContainsKey(messageInfo.FromId)))
-                    _fixedCommands.Add(messageInfo.FromId, command);
+
             }
         }
 
         private Command FindCommand(string commandText)
         {
+            if (commandText == "/addremind")
+            {
+                return new RemindMeCommand();
+            }
+
             foreach (var command in _botClient.Commands)
             {
                 if (command.Contains(commandText))
@@ -69,7 +81,6 @@ namespace RemindMeTelegramBotv2.Services
                     return command;
                 }
             }
-
             return null;
         }
 

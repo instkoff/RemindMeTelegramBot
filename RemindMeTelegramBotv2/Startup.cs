@@ -30,6 +30,7 @@ namespace RemindMeTelegramBotv2
         {
             services.Configure<DatabaseSettings>(Configuration.GetSection(nameof(DatabaseSettings)));
             services.AddSingleton<IDatabaseSettings>(sp => sp.GetRequiredService<IOptions<DatabaseSettings>>().Value);
+            services.AddSingleton<IRemindService,RemindService>();
             services.AddSingleton(typeof(IDbRepository<>), typeof(DbRepository<>));
             services.AddSingleton<IDbContext,DbContext>();
             services.AddControllers().AddNewtonsoftJson();
@@ -39,12 +40,13 @@ namespace RemindMeTelegramBotv2
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IRemindService remindService)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            remindService.InitializeTimers();
             app.UseRouting();
             app.UseCors();
 
