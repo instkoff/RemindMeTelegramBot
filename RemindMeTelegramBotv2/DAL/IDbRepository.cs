@@ -13,6 +13,8 @@ namespace RemindMeTelegramBotv2.DAL
         T Get(Expression<Func<T, bool>> predicate);
         T Get(string id);
         IMongoQueryable<T> GetFiltered(Expression<Func<T, bool>> predicate);
+        Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate);
+        void RemoveMany(Expression<Func<T, bool>> predicate);
         void Remove(string id);
         void Remove(T entityIn);
         void Update(string id, T entityIn);

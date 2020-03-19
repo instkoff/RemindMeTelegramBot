@@ -6,24 +6,26 @@ using RemindMeTelegramBotv2.DAL;
 using RemindMeTelegramBotv2.Services;
 using Telegram.Bot;
 
-namespace RemindMeTelegramBotv2.Models
+namespace RemindMeTelegramBotv2.Models.Commands
 {
     public class RemindMeCommand : Command
     {
         public override string Name => "/addremind";
 
-        static Dictionary<int, RemindEntity> _remindEntities = new Dictionary<int, RemindEntity>();
+        private static Dictionary<int, RemindEntity> _remindEntities;
 
         private readonly IRemindService _remindService;
 
         public RemindMeCommand(IRemindService remindService)
         {
             _remindService = remindService;
+            _remindEntities = new Dictionary<int, RemindEntity>();
         }
 
-        public override async Task ExecuteAsync(TelegramBotClient botClient, MessageInfo message, IDbRepository<RemindEntity> remindRepository)
+        public override async Task ExecuteAsync(TelegramBotClient botClient, MessageInfo message,
+            IDbRepository<RemindEntity> remindRepository)
         {
-            base.isComplete = false;
+            IsComplete = false;
             RemindEntity remindEntity = null;
             RemindEntity.State state = RemindEntity.State.Start;
 
@@ -31,7 +33,6 @@ namespace RemindMeTelegramBotv2.Models
             {
                 remindEntity = _remindEntities[message.FromId];
                 state = remindEntity.GetState();
-                remindEntity.onCreated += _remindService.FillRemindsList; //<---- Спросить у Дамира
             }
 
 
@@ -40,16 +41,17 @@ namespace RemindMeTelegramBotv2.Models
                 await botClient.SendTextMessageAsync(message.ChatId, "Отмена...");
                 if (remindEntity != null)
                     _remindEntities.Remove(message.FromId);
-                base.isComplete = true;
+                IsComplete = true;
                 return;
             }
 
             switch (state)
             {
                 case RemindEntity.State.Start:
+                    var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Local);
                     var newRemind = new RemindEntity(message.FromId, message.Username, message.ChatId)
                     {
-                        StartTime = DateTime.Now,
+                        StartTime = now,
                         RemindText = ""
                     };
                     await botClient.SendTextMessageAsync(message.ChatId, "О чём вам напомнить? (Сброс диалога, команда /reset)");
@@ -74,19 +76,20 @@ namespace RemindMeTelegramBotv2.Models
                     {
                         if (remindEntity != null)
                         {
-                            remindEntity.EndTime = outDate;
+                            var endTime = TimeZoneInfo.ConvertTime(outDate, TimeZoneInfo.Local);
+                            remindEntity.EndTime = endTime;
                             remindRepository.Create(remindEntity);
                             await botClient.SendTextMessageAsync(message.ChatId, "Создал напоминание");
                             remindEntity.SetState(RemindEntity.State.Created);
+                            _remindService.TryAddToRemindsSequence(remindEntity);
                             _remindEntities.Remove(message.FromId);
                         }
 
-                        base.isComplete = true;
+                        IsComplete = true;
                     }
                     else
                     {
                         await botClient.SendTextMessageAsync(message.ChatId, $"Вы не правильно ввели дату, напоминаю (Введите в формате дд.мм.гггг чч:мм)\n Например: {DateTime.Now:dd.MM.yyyy HH:mm})");
-                        return;
                     }
                     break;
                 default:

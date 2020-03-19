@@ -44,9 +44,14 @@ namespace RemindMeTelegramBotv2.Models
             state = currentState;
             if (state == State.Created)
             {
-                onCreated(null);
+
+                onCreated?.Invoke(null);
             }
         }
 
+        public override string ToString()
+        {
+            return $"В {EndTime} напомнить о: {RemindText} \n";
+        }
     }
 }

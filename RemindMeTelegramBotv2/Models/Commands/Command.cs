@@ -1,15 +1,13 @@
 ﻿using System.Threading.Tasks;
 using RemindMeTelegramBotv2.DAL;
-using RemindMeTelegramBotv2.Services;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 
-namespace RemindMeTelegramBotv2.Models
+namespace RemindMeTelegramBotv2.Models.Commands
 {
     public abstract class Command
     {
         public abstract string Name { get; }
-        public bool isComplete;
+        public bool IsComplete;
         public abstract Task ExecuteAsync(TelegramBotClient botClient, MessageInfo message, IDbRepository<RemindEntity> remindRepository);
 
         public bool Contains(string command)

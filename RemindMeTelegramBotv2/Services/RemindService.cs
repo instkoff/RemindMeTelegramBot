@@ -1,5 +1,4 @@
-﻿using MongoDB.Driver;
-using RemindMeTelegramBotv2.DAL;
+﻿using RemindMeTelegramBotv2.DAL;
 using RemindMeTelegramBotv2.Models;
 using System;
 using System.Collections.Generic;
@@ -11,17 +10,16 @@ namespace RemindMeTelegramBotv2.Services
     {
         private readonly IDbRepository<RemindEntity> _dbRepository;
         private readonly IBotClient _botClient;
-        //List<RemindEntity> _currentReminds = new List<RemindEntity>();
-        static Queue<RemindEntity> _queueOfReminds = new Queue<RemindEntity>();
+        static List<RemindEntity> _currentReminds;
+        private Timer _fillTimer;
+        private Timer _remindTimer;
+        //static Queue<RemindEntity> _queueOfReminds = new Queue<RemindEntity>();
 
         public RemindService(IDbRepository<RemindEntity> dbRepository, IBotClient botClient)
         {
             _dbRepository = dbRepository;
             _botClient = botClient;
-        }
-        public RemindService(IDbRepository<RemindEntity> dbRepository)
-        {
-            _dbRepository = dbRepository;
+            _currentReminds = new List<RemindEntity>();
         }
 
         private void StartReminding(object obj)
@@ -29,40 +27,61 @@ namespace RemindMeTelegramBotv2.Services
             DingDong();
         }
 
-        public async void FillRemindsList(object obj)
+        private async void FillRemindsList(object obj)
         {
-            _queueOfReminds.Clear();
-            var remindsList = await _dbRepository.GetFiltered(r => r.EndTime <= DateTime.Now.AddDays(1) && r.EndTime >= DateTime.Now).ToListAsync();
-            remindsList.Sort((a, b) => a.EndTime.CompareTo(b.EndTime));
+            var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Local);
+            var nowPlusDay = TimeZoneInfo.ConvertTime(DateTime.Now.AddDays(1), TimeZoneInfo.Local);
+            var remindsList = await _dbRepository.GetListAsync(r => r.EndTime <= nowPlusDay && r.EndTime >= now);
             foreach (var remind in remindsList)
             {
-                if (!(_queueOfReminds.Contains(remind)))
+                if (!(_currentReminds.Contains(remind)))
                 {
-                    _queueOfReminds.Enqueue(remind);
+                    _currentReminds.Add(remind);
                 }
+            }
+            _currentReminds.Sort((a, b) => a.EndTime.CompareTo(b.EndTime));
+            _dbRepository.RemoveMany(r => r.state == RemindEntity.State.Completed);
+        }
 
+        public void TryAddToRemindsSequence(object obj)
+        {
+            var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Local);
+            var nowPlusDay = TimeZoneInfo.ConvertTime(DateTime.Now.AddDays(1), TimeZoneInfo.Local);
+            if (obj != null)
+            {
+                var remind = (RemindEntity)obj;
+                if(remind.EndTime <= nowPlusDay && remind.EndTime >= now)
+                {
+                    _currentReminds.Add(remind);
+                }
             }
         }
 
-        private void DingDong()
+        private async void DingDong()
         {
-            if (_queueOfReminds.Count > 0)
+            var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Local);
+            if (_currentReminds.Count > 0)
             {
-                while (_queueOfReminds.Count > 0 && _queueOfReminds.Peek().EndTime <= DateTime.Now.ToUniversalTime())
+                foreach (var remind in _currentReminds)
                 {
-                    var remind = _queueOfReminds.Dequeue();
-                    _botClient.Client.SendTextMessageAsync(remind.TelegramChatId, remind.RemindText);
-                    _queueOfReminds.TrimExcess();
+                    if (remind.EndTime <= now)
+                    {
+                        await _botClient.Client.SendTextMessageAsync(remind.TelegramChatId, remind.RemindText);
+                        remind.SetState(RemindEntity.State.Completed);
+                        _dbRepository.Update(remind.Id, remind);
+                    }
                 }
+                _currentReminds.RemoveAll(r => r.state == RemindEntity.State.Completed);
             }
+
         }
 
         public void InitializeTimers()
         {
             TimerCallback tm2 = new TimerCallback(FillRemindsList);
-            Timer timer2 = new Timer(tm2, null, 0, 60 * 60 * 1000);
+            _fillTimer = new Timer(tm2, null, 0, 60 * 60 * 1000);
             TimerCallback tm = new TimerCallback(StartReminding);
-            Timer timer = new Timer(tm, null, 0, 30000);
+            _remindTimer = new Timer(tm, null, 0, 30000);
 
         }
 

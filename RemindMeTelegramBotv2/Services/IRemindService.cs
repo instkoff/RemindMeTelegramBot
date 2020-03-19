@@ -3,6 +3,6 @@
     public interface IRemindService
     {
         void InitializeTimers();
-        void FillRemindsList(object obj);
+        void TryAddToRemindsSequence(object obj);
     }
 }

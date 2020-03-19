@@ -2,6 +2,7 @@
 using RemindMeTelegramBotv2.DAL;
 using RemindMeTelegramBotv2.Models;
 using System.Threading.Tasks;
+using RemindMeTelegramBotv2.Models.Commands;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
@@ -36,11 +37,11 @@ namespace RemindMeTelegramBotv2.Services
 
             if (_fixedCommands.ContainsKey(messageInfo.FromId))
             {
-                if (_fixedCommands[messageInfo.FromId].isComplete == false)
+                if (_fixedCommands[messageInfo.FromId].IsComplete == false)
                 {
                     await _fixedCommands[messageInfo.FromId].ExecuteAsync(_botClient.Client, messageInfo, _remindRepository);
                 }
-                if (_fixedCommands[messageInfo.FromId].isComplete)
+                if (_fixedCommands[messageInfo.FromId].IsComplete)
                     _fixedCommands.Remove(messageInfo.FromId);
             }
 

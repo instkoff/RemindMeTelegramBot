@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using MihaZupan;
 using RemindMeTelegramBotv2.DAL;
+using RemindMeTelegramBotv2.Models.Commands;
 using Telegram.Bot;
 
 namespace RemindMeTelegramBotv2.Models
@@ -19,13 +20,14 @@ namespace RemindMeTelegramBotv2.Models
             Client = GetClient().Result;
             commandsList = new List<Command>
             {
-                new StartCommand()
+                new StartCommand(),
+                new MyRemindsListCommand()
             };
         }
 
         private async Task<TelegramBotClient> GetClient()
         {
-            var botclient = new TelegramBotClient(BotSettings.Key,new HttpToSocks5Proxy("95.110.194.245", 35740));
+            var botclient = new TelegramBotClient(BotSettings.Key,new HttpToSocks5Proxy());
             await botclient.DeleteWebhookAsync();
             await botclient.SetWebhookAsync(BotSettings.Url);
             return botclient;

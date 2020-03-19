@@ -2,7 +2,6 @@
 using MongoDB.Driver;
 using RemindMeTelegramBotv2.Models;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MongoDB.Driver.Linq;
@@ -11,13 +10,11 @@ namespace RemindMeTelegramBotv2.DAL
 {
     public class DbRepository<T> : IDbRepository<T> where T: class, IBaseEntity
     {
-        private readonly IDbContext _dbContext;
         private readonly IMongoCollection<T> _collection;
 
         public DbRepository(IDbContext dbContext)
         {
-            _dbContext = dbContext;
-            _collection = _dbContext.GetCollection<T>(typeof(T).Name);
+            _collection = dbContext.GetCollection<T>(typeof(T).Name);
         }
 
         public T Get(Expression<Func<T, bool>> predicate) =>
@@ -25,6 +22,9 @@ namespace RemindMeTelegramBotv2.DAL
 
         public T Get(string id) =>
             _collection.Find(entity => entity.Id == id).FirstOrDefault();
+
+        public async Task<List<T>> GetListAsync(Expression<Func<T, bool>> predicate) =>
+    await _collection.Find(predicate).ToListAsync();
 
         public IMongoQueryable<T> GetFiltered(Expression<Func<T, bool>> predicate)
         {
@@ -46,5 +46,8 @@ namespace RemindMeTelegramBotv2.DAL
 
         public void Remove(string id) =>
             _collection.DeleteOne(entity => entity.Id == id);
+
+        public void RemoveMany(Expression<Func<T, bool>> predicate) =>
+            _collection.DeleteMany(predicate);
     }
 }

@@ -1,20 +1,18 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using RemindMeTelegramBotv2.DAL;
-using RemindMeTelegramBotv2.Services;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace RemindMeTelegramBotv2.Models
+namespace RemindMeTelegramBotv2.Models.Commands
 {
     public class StartCommand : Command
     {
         public override string Name => "/start";
 
-        public override async Task ExecuteAsync(TelegramBotClient botClient, MessageInfo message, IDbRepository<RemindEntity> repository)
+        public override async Task ExecuteAsync(TelegramBotClient botClient, MessageInfo message,
+            IDbRepository<RemindEntity> repository)
         {
-            base.isComplete = false;
+            IsComplete = false;
             var inlineKeyboard = new InlineKeyboardMarkup(new[]
                                 {
                         // first row
@@ -31,7 +29,7 @@ namespace RemindMeTelegramBotv2.Models
                         }
                     });
             await botClient.SendTextMessageAsync(message.ChatId,"Клавиатура", replyMarkup: inlineKeyboard);
-            base.isComplete = true;
+            IsComplete = true;
         }
     }
 }

@@ -2,8 +2,8 @@
 {
     public static class BotSettings
     {
-        public static string Key { get; set; } = "1022704629:AAHNi6rnGqkgba8FsmxU6wZUfqRFfcUVghs";
-        public static string Url { get; set; } = "https://64ab2178.ngrok.io/api/listener/";
+        public static string Key { get; set; } = "";
+        public static string Url { get; set; } = "https://b43881c5.ngrok.io/api/listener/";
         public static string Name { get; set; } = "RemindMeTelegram";
     }
 }
