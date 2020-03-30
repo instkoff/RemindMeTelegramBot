@@ -48,10 +48,9 @@ namespace RemindMeTelegramBotv2.Models.Commands
             switch (state)
             {
                 case RemindEntity.State.Start:
-                    var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Local);
                     var newRemind = new RemindEntity(message.FromId, message.Username, message.ChatId)
                     {
-                        StartTime = now,
+                        StartTime = DateTime.Now.ToUniversalTime(),
                         RemindText = ""
                     };
                     await botClient.SendTextMessageAsync(message.ChatId, "О чём вам напомнить? (Сброс диалога, команда /reset)");
@@ -76,8 +75,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
                     {
                         if (remindEntity != null)
                         {
-                            var endTime = TimeZoneInfo.ConvertTime(outDate, TimeZoneInfo.Local);
-                            remindEntity.EndTime = endTime;
+                            remindEntity.EndTime = outDate.ToUniversalTime();
                             remindRepository.Create(remindEntity);
                             await botClient.SendTextMessageAsync(message.ChatId, "Создал напоминание");
                             remindEntity.SetState(RemindEntity.State.Created);

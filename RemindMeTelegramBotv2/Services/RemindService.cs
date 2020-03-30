@@ -29,8 +29,8 @@ namespace RemindMeTelegramBotv2.Services
 
         private async void FillRemindsList(object obj)
         {
-            var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Local);
-            var nowPlusDay = TimeZoneInfo.ConvertTime(DateTime.Now.AddDays(1), TimeZoneInfo.Local);
+            var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Utc);
+            var nowPlusDay = TimeZoneInfo.ConvertTime(DateTime.Now.AddDays(1), TimeZoneInfo.Utc);
             var remindsList = await _dbRepository.GetListAsync(r => r.EndTime <= nowPlusDay && r.EndTime >= now);
             foreach (var remind in remindsList)
             {
@@ -45,8 +45,8 @@ namespace RemindMeTelegramBotv2.Services
 
         public void TryAddToRemindsSequence(object obj)
         {
-            var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Local);
-            var nowPlusDay = TimeZoneInfo.ConvertTime(DateTime.Now.AddDays(1), TimeZoneInfo.Local);
+            var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Utc);
+            var nowPlusDay = TimeZoneInfo.ConvertTime(DateTime.Now.AddDays(1), TimeZoneInfo.Utc);
             if (obj != null)
             {
                 var remind = (RemindEntity)obj;
@@ -59,7 +59,7 @@ namespace RemindMeTelegramBotv2.Services
 
         private async void DingDong()
         {
-            var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Local);
+            var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Utc);
             if (_currentReminds.Count > 0)
             {
                 foreach (var remind in _currentReminds)
