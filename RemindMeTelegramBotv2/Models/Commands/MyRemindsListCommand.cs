@@ -13,9 +13,20 @@ namespace RemindMeTelegramBotv2.Models.Commands
             IDbRepository<RemindEntity> remindRepository)
         {
             var remindsList = await remindRepository.GetListAsync(r => r.TelegramUsernameId == message.FromId && r.state != RemindEntity.State.Completed);
-            StringBuilder remindsBuilder = new StringBuilder();
-            remindsList.ForEach(r => { remindsBuilder.Append(r);});
-            await botClient.SendTextMessageAsync(message.ChatId, remindsBuilder.ToString());
+            if (remindsList.Count != 0)
+            {
+                StringBuilder remindsBuilder = new StringBuilder();
+                remindsList.ForEach(r => { remindsBuilder.Append(r); });
+                await botClient.SendTextMessageAsync(message.ChatId, remindsBuilder.ToString());
+                IsComplete = true;
+            }
+            else
+            {
+                await botClient.SendTextMessageAsync(message.ChatId, "Список пуст");
+                IsComplete = true;
+            }
+
+
         }
     }
 }

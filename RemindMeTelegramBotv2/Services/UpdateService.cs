@@ -59,10 +59,16 @@ namespace RemindMeTelegramBotv2.Services
             {
                 if (_fixedCommands.ContainsKey(messageInfo.FromId))
                 {
-                    await _botClient.Client.SendTextMessageAsync(messageInfo.ChatId,
-                        "Вы повторно ввели команду, закончите или сбросьте текущую");
-                    return;
+                    if (_fixedCommands[messageInfo.FromId].IsComplete == false)
+                    {
+                        await _botClient.Client.SendTextMessageAsync(messageInfo.ChatId,
+                            "Вы повторно ввели команду, закончите или сбросьте текущую");
+                        return;
+                    }
+                    if (_fixedCommands[messageInfo.FromId].IsComplete)
+                        _fixedCommands.Remove(messageInfo.FromId);
                 }
+
 
                 _fixedCommands.Add(messageInfo.FromId, command);
                 await command.ExecuteAsync(_botClient.Client, messageInfo, _remindRepository);
