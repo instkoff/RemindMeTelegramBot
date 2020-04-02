@@ -51,7 +51,7 @@ namespace RemindMeTelegramBotv2.Models
 
         public override string ToString()
         {
-            return $"В {EndTime} напомнить о: {RemindText} \n";
+            return $"{EndTime} напомнить о: {RemindText} \n";
         }
     }
 }

@@ -16,7 +16,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
             if (remindsList.Count != 0)
             {
                 StringBuilder remindsBuilder = new StringBuilder();
-                remindsList.ForEach(r => { remindsBuilder.Append(r); });
+                remindsList.ForEach(r => { remindsBuilder.Append($"{r.EndTime.ToLocalTime()} напомнить о: {r.RemindText} \n"); });
                 await botClient.SendTextMessageAsync(message.ChatId, remindsBuilder.ToString());
                 IsComplete = true;
             }
