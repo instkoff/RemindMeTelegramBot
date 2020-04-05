@@ -1,7 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using System;
-using System.Globalization;
+﻿using System;
 
 namespace RemindMeTelegramBotv2.Models
 {

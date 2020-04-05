@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
 using RemindMeTelegramBotv2.DAL;
+using RemindMeTelegramBotv2.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace RemindMeTelegramBotv2.Models.Commands
+namespace RemindMeTelegramBotv2.Scheduler.Commands
 {
     public class StartCommand : Command
     {

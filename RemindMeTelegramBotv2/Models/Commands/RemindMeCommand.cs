@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using RemindMeTelegramBotv2.DAL;
+using RemindMeTelegramBotv2.Models;
 using RemindMeTelegramBotv2.Services;
 using Telegram.Bot;
 
-namespace RemindMeTelegramBotv2.Models.Commands
+namespace RemindMeTelegramBotv2.Scheduler.Commands
 {
     public class RemindMeCommand : Command
     {

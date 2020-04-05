@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using RemindMeTelegramBotv2.Models.Commands;
+using RemindMeTelegramBotv2.Scheduler.Commands;
 using Telegram.Bot;
 
 namespace RemindMeTelegramBotv2.Models

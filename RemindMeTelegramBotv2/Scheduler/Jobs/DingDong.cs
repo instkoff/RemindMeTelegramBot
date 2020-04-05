@@ -4,7 +4,7 @@ using Quartz;
 using RemindMeTelegramBotv2.DAL;
 using RemindMeTelegramBotv2.Models;
 
-namespace RemindMeTelegramBotv2.Services.Tasks
+namespace RemindMeTelegramBotv2.Scheduler.Jobs
 {
     public class DingDong : IJob
     {

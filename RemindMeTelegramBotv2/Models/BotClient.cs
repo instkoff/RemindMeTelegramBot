@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MihaZupan;
-using RemindMeTelegramBotv2.DAL;
-using RemindMeTelegramBotv2.Models.Commands;
+using RemindMeTelegramBotv2.Scheduler;
+using RemindMeTelegramBotv2.Scheduler.Commands;
 using Telegram.Bot;
 
 namespace RemindMeTelegramBotv2.Models

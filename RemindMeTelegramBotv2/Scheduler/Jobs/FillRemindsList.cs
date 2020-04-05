@@ -5,7 +5,7 @@ using Quartz;
 using RemindMeTelegramBotv2.DAL;
 using RemindMeTelegramBotv2.Models;
 
-namespace RemindMeTelegramBotv2.Services.Tasks
+namespace RemindMeTelegramBotv2.Scheduler.Jobs
 {
     public class FillRemindsList : IJob
     {
@@ -35,8 +35,8 @@ namespace RemindMeTelegramBotv2.Services.Tasks
 
         public void TryAddToRemindsSequence(object obj)
         {
-            var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Utc);
-            var nowPlusDay = TimeZoneInfo.ConvertTime(DateTime.Now.AddDays(1), TimeZoneInfo.Utc);
+            var now = DateTime.Now.ToUniversalTime();
+            var nowPlusDay = DateTime.Now.ToUniversalTime().AddDays(1);
             if (obj != null)
             {
                 var remind = (RemindEntity)obj;

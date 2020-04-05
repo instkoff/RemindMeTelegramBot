@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using RemindMeTelegramBotv2.DAL;
-using RemindMeTelegramBotv2.Models;
+using RemindMeTelegramBotv2.Scheduler;
 using System.Threading.Tasks;
-using RemindMeTelegramBotv2.Models.Commands;
+using RemindMeTelegramBotv2.Models;
+using RemindMeTelegramBotv2.Scheduler.Commands;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 

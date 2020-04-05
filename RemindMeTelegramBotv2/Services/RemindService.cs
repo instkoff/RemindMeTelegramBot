@@ -1,8 +1,8 @@
 ﻿using RemindMeTelegramBotv2.DAL;
-using RemindMeTelegramBotv2.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using RemindMeTelegramBotv2.Models;
 
 namespace RemindMeTelegramBotv2.Services
 {
