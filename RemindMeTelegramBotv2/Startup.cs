@@ -33,7 +33,7 @@ namespace RemindMeTelegramBotv2
             services.AddSingleton<IRemindService,RemindService>();
             services
                 .AddSingleton<ISchedulerService>(sp => new SchedulerService(sp,sp.GetService<ILoggerFactory>()))
-                .AddScoped<FillRemindsList>();
+                .AddScoped<FillRemindsList>().AddScoped<DingDong>();
             services.AddSingleton(typeof(IDbRepository<>), typeof(DbRepository<>));
             services.AddSingleton<IDbContext,DbContext>();
             services.AddControllers().AddNewtonsoftJson();
@@ -51,7 +51,6 @@ namespace RemindMeTelegramBotv2
             }
 
             schedulerService.Start();
-           // remindService.InitializeTimers();
             app.UseRouting();
             app.UseCors();
 

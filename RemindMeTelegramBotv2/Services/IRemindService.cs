@@ -1,8 +1,11 @@
-﻿namespace RemindMeTelegramBotv2.Services
+﻿using System.Collections.Generic;
+using RemindMeTelegramBotv2.Models;
+
+namespace RemindMeTelegramBotv2.Services
 {
     public interface IRemindService
     {
-        void InitializeTimers();
+        List<RemindEntity> CurrentReminds { get; }
         void TryAddToRemindsSequence(object obj);
     }
 }

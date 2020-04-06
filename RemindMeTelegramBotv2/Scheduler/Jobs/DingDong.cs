@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Quartz;
 using RemindMeTelegramBotv2.DAL;
 using RemindMeTelegramBotv2.Models;
+using RemindMeTelegramBotv2.Services;
 
 namespace RemindMeTelegramBotv2.Scheduler.Jobs
 {
@@ -10,17 +11,19 @@ namespace RemindMeTelegramBotv2.Scheduler.Jobs
     {
         private readonly IBotClient _botClient;
         private readonly IDbRepository<RemindEntity> _dbRepository;
-        public DingDong(IBotClient botClient, IDbRepository<RemindEntity> dbRepository)
+        private readonly IRemindService _remindService;
+        public DingDong(IBotClient botClient, IDbRepository<RemindEntity> dbRepository, IRemindService remindService)
         {
             _botClient = botClient;
             _dbRepository = dbRepository;
+            _remindService = remindService;
         }
         public async Task Execute(IJobExecutionContext context)
         {
             var now = DateTime.Now.ToUniversalTime();
-            if (FillRemindsList._currentReminds.Count > 0)
+            if (_remindService.CurrentReminds.Count > 0)
             {
-                foreach (var remind in FillRemindsList._currentReminds)
+                foreach (var remind in _remindService.CurrentReminds)
                 {
                     if (remind.EndTime <= now)
                     {
@@ -29,7 +32,7 @@ namespace RemindMeTelegramBotv2.Scheduler.Jobs
                         _dbRepository.Update(remind.Id, remind);
                     }
                 }
-                FillRemindsList._currentReminds.RemoveAll(r => r.state == RemindEntity.State.Completed);
+                _remindService.CurrentReminds.RemoveAll(r => r.state == RemindEntity.State.Completed);
             }
         }
     }

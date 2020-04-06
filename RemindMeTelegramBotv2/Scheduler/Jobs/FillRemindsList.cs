@@ -4,18 +4,18 @@ using System.Threading.Tasks;
 using Quartz;
 using RemindMeTelegramBotv2.DAL;
 using RemindMeTelegramBotv2.Models;
+using RemindMeTelegramBotv2.Services;
 
 namespace RemindMeTelegramBotv2.Scheduler.Jobs
 {
     public class FillRemindsList : IJob
     {
         private readonly IDbRepository<RemindEntity> _dbRepository;
-        public static List<RemindEntity> _currentReminds;
-
-        public FillRemindsList(IDbRepository<RemindEntity> dbRepository)
+        private readonly IRemindService _remindService;
+        public FillRemindsList(IDbRepository<RemindEntity> dbRepository, IRemindService remindService)
         {
             _dbRepository = dbRepository;
-            _currentReminds = new List<RemindEntity>();
+            _remindService = remindService;
         }
         public async Task Execute(IJobExecutionContext context)
         {
@@ -24,27 +24,13 @@ namespace RemindMeTelegramBotv2.Scheduler.Jobs
             var remindsList = await _dbRepository.GetListAsync(r => r.EndTime <= nowPlusDay && r.EndTime >= now);
             foreach (var remind in remindsList)
             {
-                if (!(_currentReminds.Contains(remind)))
+                if (!(_remindService.CurrentReminds.Contains(remind)))
                 {
-                    _currentReminds.Add(remind);
+                    _remindService.CurrentReminds.Add(remind);
                 }
             }
-            _currentReminds.Sort((a, b) => a.EndTime.CompareTo(b.EndTime));
+            _remindService.CurrentReminds.Sort((a, b) => a.EndTime.CompareTo(b.EndTime));
             _dbRepository.RemoveMany(r => r.state == RemindEntity.State.Completed);
-        }
-
-        public void TryAddToRemindsSequence(object obj)
-        {
-            var now = DateTime.Now.ToUniversalTime();
-            var nowPlusDay = DateTime.Now.ToUniversalTime().AddDays(1);
-            if (obj != null)
-            {
-                var remind = (RemindEntity)obj;
-                if (remind.EndTime <= nowPlusDay && remind.EndTime >= now)
-                {
-                    _currentReminds.Add(remind);
-                }
-            }
         }
     }
 }

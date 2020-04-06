@@ -28,17 +28,30 @@ namespace RemindMeTelegramBotv2.Scheduler
             _quartzScheduler.Scheduler = await factory.GetScheduler();
             _quartzScheduler.Scheduler.JobFactory = new JobFactory(_serviceProvider);
 
-            _quartzScheduler.Job = JobBuilder.Create<FillRemindsList>()
+            _quartzScheduler.Job1 = JobBuilder.Create<FillRemindsList>()
                 .WithIdentity("FillRemindList", "grp")
                 .Build();
 
-            _quartzScheduler.Trigger = TriggerBuilder.Create()
-                .WithIdentity("updateTrigger", "crwl")
+            _quartzScheduler.Job2 = JobBuilder.Create<DingDong>()
+                .WithIdentity("Ding-dong", "grp")
+                .Build();
+
+            _quartzScheduler.Trigger1 = TriggerBuilder.Create()
+                .WithIdentity("FillTrigger", "grp")
                 .StartNow()
                 .WithSimpleSchedule(x => x
                     .WithIntervalInHours(8)
                     .RepeatForever())
                 .Build();
+
+            _quartzScheduler.Trigger2 = TriggerBuilder.Create()
+                .WithIdentity("DingDongTrigger", "grp")
+                .StartNow()
+                .WithSimpleSchedule(x => x
+                    .WithIntervalInSeconds(30)
+                    .RepeatForever())
+                .Build();
+
             _logger.LogInformation("Scheduler initialized");
         }
 
@@ -53,8 +66,8 @@ namespace RemindMeTelegramBotv2.Scheduler
             }
 
             await _quartzScheduler.Scheduler.Start();
-            await _quartzScheduler.Scheduler.ScheduleJob(_quartzScheduler.Job, _quartzScheduler.Trigger);
-
+            await _quartzScheduler.Scheduler.ScheduleJob(_quartzScheduler.Job1, _quartzScheduler.Trigger1);
+            await _quartzScheduler.Scheduler.ScheduleJob(_quartzScheduler.Job2, _quartzScheduler.Trigger2);
             _logger.LogInformation("Scheduler was started");
         }
 
@@ -88,7 +101,7 @@ namespace RemindMeTelegramBotv2.Scheduler
             await Init();
 
             await _quartzScheduler.Scheduler.Start();
-            await _quartzScheduler.Scheduler.ScheduleJob(_quartzScheduler.Job, _quartzScheduler.Trigger);
+            await _quartzScheduler.Scheduler.ScheduleJob(_quartzScheduler.Job1, _quartzScheduler.Trigger1);
 
             _logger.LogInformation("Scheduler was restarted");
         }

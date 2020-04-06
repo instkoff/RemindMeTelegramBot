@@ -23,7 +23,7 @@ namespace RemindMeTelegramBotv2.Scheduler
         public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler)
         {
             var scope = _serviceProvider.CreateScope();
-            return scope.ServiceProvider.GetRequiredService<FillRemindsList>();
+            return (IJob)scope.ServiceProvider.GetService(bundle.JobDetail.JobType);
         }
 
         /// <inheritdoc />

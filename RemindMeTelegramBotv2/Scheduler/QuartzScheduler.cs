@@ -9,8 +9,12 @@ namespace RemindMeTelegramBotv2.Scheduler
         /// </summary>
         public IScheduler Scheduler { get; set; }
 
-        public ITrigger Trigger { get; set; }
+        public ITrigger Trigger1 { get; set; }
 
-        public IJobDetail Job { get; set; }
+        public IJobDetail Job1 { get; set; }
+
+        public ITrigger Trigger2 { get; set; }
+
+        public IJobDetail Job2 { get; set; }
     }
 }
