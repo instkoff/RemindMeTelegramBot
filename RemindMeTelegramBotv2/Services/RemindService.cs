@@ -13,16 +13,15 @@ namespace RemindMeTelegramBotv2.Services
             CurrentReminds = new List<RemindEntity>();
         }
 
-        public void TryAddToRemindsSequence(object obj)
+        public void TryAddToRemindsSequence(RemindEntity newRemindEntity)
         {
             var now = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Utc);
             var nowPlusDay = TimeZoneInfo.ConvertTime(DateTime.Now.AddDays(1), TimeZoneInfo.Utc);
-            if (obj != null)
+            if (newRemindEntity != null)
             {
-                var remind = (RemindEntity)obj;
-                if(remind.EndTime <= nowPlusDay && remind.EndTime >= now)
+                if(newRemindEntity.EndTime <= nowPlusDay && newRemindEntity.EndTime >= now)
                 {
-                    CurrentReminds.Add(remind);
+                    CurrentReminds.Add(newRemindEntity);
                 }
             }
         }

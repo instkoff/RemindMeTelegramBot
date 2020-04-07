@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using RemindMeTelegramBotv2.Models;
 using RemindMeTelegramBotv2.Services;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -19,13 +20,18 @@ namespace RemindMeTelegramBotv2.Controllers
         [HttpPost]
         public async Task<IActionResult> PostUpdate([FromBody]Update update)
         {
+            MessageDetails messageDetails;
             switch (update.Type)
             {
                 case UpdateType.Message:
-                    await _updateService.AnswerOnMessageAsync(update.Message);
+                    var usernameM = update.Message.From.Username ?? update.Message.From.FirstName;
+                    messageDetails = new MessageDetails(update.Message.From.Id, update.Message.Chat.Id, usernameM, update.Message.Text);
+                    await _updateService.AnswerOn(messageDetails);
                     break;
                 case UpdateType.CallbackQuery:
-                    await _updateService.AnswerOnCallbackQueryAsync(update.CallbackQuery);
+                    var usernameC = update.CallbackQuery.From.Username ?? update.CallbackQuery.From.FirstName;
+                    messageDetails = new MessageDetails(update.CallbackQuery.From.Id, update.CallbackQuery.Message.Chat.Id, usernameC, update.CallbackQuery.Data);
+                    await _updateService.AnswerOn(messageDetails);
                     break;
             }
             return Ok();

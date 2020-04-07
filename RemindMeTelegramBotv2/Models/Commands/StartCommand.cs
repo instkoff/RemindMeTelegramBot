@@ -1,16 +1,15 @@
 ﻿using System.Threading.Tasks;
 using RemindMeTelegramBotv2.DAL;
-using RemindMeTelegramBotv2.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace RemindMeTelegramBotv2.Scheduler.Commands
+namespace RemindMeTelegramBotv2.Models.Commands
 {
     public class StartCommand : Command
     {
         public override string Name => "/start";
 
-        public override async Task ExecuteAsync(TelegramBotClient botClient, MessageInfo message,
+        public override async Task ExecuteAsync(TelegramBotClient botClient, MessageDetails message,
             IDbRepository<RemindEntity> repository)
         {
             IsComplete = false;

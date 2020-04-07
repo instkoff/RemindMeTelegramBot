@@ -1,27 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MihaZupan;
-using RemindMeTelegramBotv2.Scheduler;
-using RemindMeTelegramBotv2.Scheduler.Commands;
 using Telegram.Bot;
 
 namespace RemindMeTelegramBotv2.Models
 {
     public class BotClient : IBotClient
     {
+        private readonly List<string> _commandList;
+        public IReadOnlyList<string> Commands => _commandList.AsReadOnly();
 
         public TelegramBotClient Client { get; private set; }
-
-        private List<Command> commandsList;
-        public  IReadOnlyList<Command> Commands => commandsList.AsReadOnly();
-
+        
         public BotClient()
         {
             Client = GetClient().Result;
-            commandsList = new List<Command>
+            _commandList = new List<string>
             {
-                new StartCommand(),
-                new MyRemindsListCommand()
+                "/start",
+                "/addremind",
+                "/myremindslist"
             };
         }
 

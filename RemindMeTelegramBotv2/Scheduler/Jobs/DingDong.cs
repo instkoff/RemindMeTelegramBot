@@ -28,11 +28,11 @@ namespace RemindMeTelegramBotv2.Scheduler.Jobs
                     if (remind.EndTime <= now)
                     {
                         await _botClient.Client.SendTextMessageAsync(remind.TelegramChatId, remind.RemindText);
-                        remind.SetState(RemindEntity.State.Completed);
+                        remind.State = RemindEntity.States.Completed;
                         _dbRepository.Update(remind.Id, remind);
                     }
                 }
-                _remindService.CurrentReminds.RemoveAll(r => r.state == RemindEntity.State.Completed);
+                _remindService.CurrentReminds.RemoveAll(r => r.State == RemindEntity.States.Completed);
             }
         }
     }

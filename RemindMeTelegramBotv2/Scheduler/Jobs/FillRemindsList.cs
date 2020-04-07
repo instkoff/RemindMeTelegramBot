@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Quartz;
 using RemindMeTelegramBotv2.DAL;
@@ -27,10 +26,12 @@ namespace RemindMeTelegramBotv2.Scheduler.Jobs
                 if (!(_remindService.CurrentReminds.Contains(remind)))
                 {
                     _remindService.CurrentReminds.Add(remind);
+                    remind.State = RemindEntity.States.InQueue;
+                    _dbRepository.Update(remind.Id, remind);
                 }
             }
             _remindService.CurrentReminds.Sort((a, b) => a.EndTime.CompareTo(b.EndTime));
-            _dbRepository.RemoveMany(r => r.state == RemindEntity.State.Completed);
+            _dbRepository.RemoveMany(r => r.State == RemindEntity.States.Completed);
         }
     }
 }

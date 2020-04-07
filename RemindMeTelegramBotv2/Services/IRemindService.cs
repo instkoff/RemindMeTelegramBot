@@ -6,6 +6,6 @@ namespace RemindMeTelegramBotv2.Services
     public interface IRemindService
     {
         List<RemindEntity> CurrentReminds { get; }
-        void TryAddToRemindsSequence(object obj);
+        void TryAddToRemindsSequence(RemindEntity newRemindEntity);
     }
 }

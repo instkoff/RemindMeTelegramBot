@@ -7,44 +7,30 @@ namespace RemindMeTelegramBotv2.Models
         public DateTime EndTime { get; set; }
         public DateTime StartTime { get; set; }
         public string RemindText { get; set; }
-        public string TelegramUsername { get; set; }
-        public long TelegramChatId { get; set; }
-        public int TelegramUsernameId { get; set; }
+        public string TelegramUsername { get; }
+        public long TelegramChatId { get; }
+        public int TelegramUsernameId { get; }
 
-        public event Action<object> onCreated;
+        public States State { get; set; }
 
-        public State state;
-
-        public enum State
+        public enum States
         {
             Start,
             EnterText,
             EnterDate,
             Created,
+            InQueue,
             Completed
         }
 
         public RemindEntity(int usernameId, string username, long chatId)
         {
-            state = State.Start;
+            State = States.Start;
             TelegramUsernameId = usernameId;
             TelegramUsername = username;
             TelegramChatId = chatId;
         }
 
-        public State GetState()
-        {
-            return state;
-        }
-        public void SetState(State currentState)
-        {
-            state = currentState;
-            if (state == State.Created)
-            {
-
-                onCreated?.Invoke(null);
-            }
-        }
 
         public override string ToString()
         {
