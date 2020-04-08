@@ -7,9 +7,9 @@ namespace RemindMeTelegramBotv2.Models
         public DateTime EndTime { get; set; }
         public DateTime StartTime { get; set; }
         public string RemindText { get; set; }
-        public string TelegramUsername { get; }
-        public long TelegramChatId { get; }
-        public int TelegramUsernameId { get; }
+        public string TelegramUsername { get; set; }
+        public long TelegramChatId { get; set; }
+        public int TelegramUsernameId { get; set; }
 
         public States State { get; set; }
 

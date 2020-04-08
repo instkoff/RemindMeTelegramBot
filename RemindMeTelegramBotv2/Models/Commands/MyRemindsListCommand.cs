@@ -27,7 +27,6 @@ namespace RemindMeTelegramBotv2.Models.Commands
                 IsComplete = true;
             }
 
-
         }
     }
 }

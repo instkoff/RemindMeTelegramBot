@@ -32,7 +32,7 @@ namespace RemindMeTelegramBotv2
             services.Configure<DatabaseSettings>(Configuration.GetSection(nameof(DatabaseSettings)));
             services.AddSingleton<IDatabaseSettings>(sp => sp.GetRequiredService<IOptions<DatabaseSettings>>().Value);
             services.AddSingleton<IRemindService,RemindService>();
-            services.AddSingleton<ICommandsCreator, CommandsCreator>();
+            services.AddScoped<ICommandsCreator, CommandsCreator>();
             services
                 .AddSingleton<ISchedulerService>(sp => new SchedulerService(sp,sp.GetService<ILoggerFactory>()))
                 .AddScoped<FillRemindsList>().AddScoped<DingDong>();

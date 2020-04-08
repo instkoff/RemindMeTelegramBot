@@ -1,29 +1,37 @@
+using System.Threading.Tasks;
+using NSubstitute;
 using NUnit.Framework;
 using RemindMeTelegramBotv2.DAL;
 using RemindMeTelegramBotv2.Models;
-using RemindMeTelegramBotv2.Services;
+using RemindMeTelegramBotv2.Models.Commands;
+using Telegram.Bot;
 
 namespace RemindMeTelegramBotTests
 {
-    public class Tests
+    public class CommnadsTests
     {
-        private UpdateService _updateService;
-        [SetUp]
-        public void Setup()
-        {
-            _updateService = new UpdateService(new BotClient(), new DbRepository<RemindEntity>(new DbContext(new DatabaseSettings())), new RemindService());
-        }
-        [TearDown]
-        public void Teardown()
-        {
-            _updateService = null;
+        //[SetUp]
+        //public void Setup()
+        //{
+            
+        //}
+        //[TearDown]
+        //public void Teardown()
+        //{
+            
 
-        }
+        //}
         [Test]
-        public void Test1()
+        public async Task MyRemindsListCommandTest()
         {
-            MessageDetails message = new MessageDetails(154546,56487, "instkoff","/start");
-            //Assert.That(_updateService.AnswerOnMessageAsync(message), );
+            var dbRepository = Substitute.For<IDbRepository<RemindEntity>>();
+            var command  = new MyRemindsListCommand();
+            MessageDetails md = new MessageDetails(Arg.Any<int>(), Arg.Any<long>(), "instkoff", "/myremindslist");
+
+            await command.ExecuteAsync(Substitute.For<TelegramBotClient>(), md, dbRepository);
+
+            Assert.That(command.IsComplete, Is.True);
+
         }
     }
 }

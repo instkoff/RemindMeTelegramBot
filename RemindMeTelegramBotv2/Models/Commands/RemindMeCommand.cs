@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using RemindMeTelegramBotv2.DAL;
+using RemindMeTelegramBotv2.Services;
 using Telegram.Bot;
 
 namespace RemindMeTelegramBotv2.Models.Commands
@@ -12,10 +13,12 @@ namespace RemindMeTelegramBotv2.Models.Commands
         public override string Name => "/addremind";
 
         private static Dictionary<int, RemindEntity> _remindEntities;
+        private readonly IRemindService _remindService;
 
-        public RemindMeCommand()
+        public RemindMeCommand(IRemindService remindService)
         {
             _remindEntities = new Dictionary<int, RemindEntity>();
+            _remindService = remindService;
         }
 
         public override async Task ExecuteAsync(TelegramBotClient botClient, MessageDetails message,
@@ -75,6 +78,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
                             remindRepository.Create(remindEntity);
                             await botClient.SendTextMessageAsync(message.ChatId, "Создал напоминание");
                             remindEntity.State = RemindEntity.States.Created;
+                            _remindService.TryAddToRemindsSequence(remindEntity);
                             _remindEntities.Remove(message.FromId);
                         }
                         IsComplete = true;

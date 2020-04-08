@@ -102,6 +102,7 @@ namespace RemindMeTelegramBotv2.Scheduler
 
             await _quartzScheduler.Scheduler.Start();
             await _quartzScheduler.Scheduler.ScheduleJob(_quartzScheduler.Job1, _quartzScheduler.Trigger1);
+            await _quartzScheduler.Scheduler.ScheduleJob(_quartzScheduler.Job2, _quartzScheduler.Trigger2);
 
             _logger.LogInformation("Scheduler was restarted");
         }
