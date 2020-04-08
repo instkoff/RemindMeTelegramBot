@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
@@ -22,16 +24,19 @@ namespace RemindMeTelegramBotTests
 
         //}
         [Test]
-        public async Task MyRemindsListCommandTest()
+        public void GetBotClientTest()
+        {
+            var botClient = new BotClient();
+            Assert.That(botClient.Client, Is.Not.Null);
+
+        }
+
+        [Test]
+        public async Task StartCommandTest()
         {
             var dbRepository = Substitute.For<IDbRepository<RemindEntity>>();
-            var command  = new MyRemindsListCommand();
-            MessageDetails md = new MessageDetails(Arg.Any<int>(), Arg.Any<long>(), "instkoff", "/myremindslist");
-
-            await command.ExecuteAsync(Substitute.For<TelegramBotClient>(), md, dbRepository);
-
-            Assert.That(command.IsComplete, Is.True);
-
+            var remindsList = new List<RemindEntity>();
+            await dbRepository.GetListAsync(Arg.Any<Expression>()).ReturnsForAnyArgs(remindsList);
         }
     }
 }
