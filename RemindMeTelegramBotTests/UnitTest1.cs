@@ -1,12 +1,8 @@
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 using NSubstitute;
 using NUnit.Framework;
-using RemindMeTelegramBotv2.DAL;
 using RemindMeTelegramBotv2.Models;
 using RemindMeTelegramBotv2.Models.Commands;
-using Telegram.Bot;
+using RemindMeTelegramBotv2.Services;
 
 namespace RemindMeTelegramBotTests
 {
@@ -32,11 +28,12 @@ namespace RemindMeTelegramBotTests
         }
 
         [Test]
-        public async Task StartCommandTest()
+        public void CommandsCreatorTest()
         {
-            var dbRepository = Substitute.For<IDbRepository<RemindEntity>>();
-            var remindsList = new List<RemindEntity>();
-            await dbRepository.GetListAsync(Arg.Any<Expression>()).ReturnsForAnyArgs(remindsList);
+            var remindService = Substitute.For<IRemindService>();
+            var commandCreator = new CommandsCreator(remindService);
+            var cmd = commandCreator.CreateCommand("/start");
+            Assert.That(cmd, Is.TypeOf<StartCommand>());
         }
     }
 }
