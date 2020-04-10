@@ -22,9 +22,10 @@ namespace RemindMeTelegramBotv2.Models.Commands
             var remindsList = await _dbRepository.GetListAsync(r => r.TelegramUsernameId == message.FromId && r.State != RemindEntity.States.Completed);
             if (remindsList.Count != 0)
             {
+                int i=0;
                 StringBuilder remindsBuilder = new StringBuilder();
                 remindsBuilder.Append($"Ваши напоминания {message.Username}: \n");
-                remindsList.ForEach(r => { remindsBuilder.Append($"{r.EndTime} напомнить о: {r.RemindText} \n"); });
+                remindsList.ForEach(r => { remindsBuilder.Append($"{i++}) {r.EndTime} напомнить о: {r.RemindText} \n"); });
                 await _botClient.Client.SendTextMessageAsync(message.ChatId, remindsBuilder.ToString());
                 IsComplete = true;
             }
