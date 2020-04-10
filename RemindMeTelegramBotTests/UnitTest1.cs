@@ -28,12 +28,13 @@ namespace RemindMeTelegramBotTests
         }
 
         [Test]
-        public void CommandsCreatorTest()
+        public void StartCommandTest()
         {
-            var remindService = Substitute.For<IRemindService>();
-            var commandCreator = new CommandsCreator(remindService);
-            var cmd = commandCreator.CreateCommand("/start");
-            Assert.That(cmd, Is.TypeOf<StartCommand>());
+            MessageDetails message = new MessageDetails(Arg.Any<int>(),Arg.Any<long>(),"instkoff", "/start");
+            var botClient = new BotClient();
+            var command = new StartCommand(botClient);
+            command.ExecuteAsync(message).GetAwaiter().GetResult();
+            Assert.That(command.IsComplete, Is.True);
         }
     }
 }

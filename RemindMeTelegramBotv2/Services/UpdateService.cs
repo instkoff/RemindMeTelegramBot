@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using RemindMeTelegramBotv2.DAL;
 using System.Threading.Tasks;
 using RemindMeTelegramBotv2.Models;
 using RemindMeTelegramBotv2.Models.Commands;
@@ -10,15 +9,13 @@ namespace RemindMeTelegramBotv2.Services
     public class UpdateService : IUpdateService
     {
         private readonly IBotClient _botClient;
-        private readonly IDbRepository<RemindEntity> _remindRepository;
         private readonly ICommandsCreator _commandsCreator;
 
-        private static Dictionary<int,Command> _fixedCommands = new Dictionary<int, Command>();
+        private static readonly Dictionary<int,Command> _fixedCommands = new Dictionary<int, Command>();
 
 
-        public UpdateService(IBotClient botClient, IDbRepository<RemindEntity> remindRepository, ICommandsCreator commandsCreator)
+        public UpdateService(IBotClient botClient, ICommandsCreator commandsCreator)
         {
-            _remindRepository = remindRepository;
             _botClient = botClient;
             _commandsCreator = commandsCreator;
         }
@@ -34,7 +31,7 @@ namespace RemindMeTelegramBotv2.Services
             {
                 if (_fixedCommands.ContainsKey(messageDetails.FromId))
                 {
-                    if (!(_fixedCommands[messageDetails.FromId].IsComplete))
+                    if (!_fixedCommands[messageDetails.FromId].IsComplete)
                     {
                         await _botClient.Client.SendTextMessageAsync(messageDetails.ChatId,
                             "Вы повторно ввели команду, закончите или сбросьте текущую");
@@ -45,15 +42,15 @@ namespace RemindMeTelegramBotv2.Services
                 }
 
                 _fixedCommands.Add(messageDetails.FromId, command);
-                await command.ExecuteAsync(_botClient.Client, messageDetails, _remindRepository);
+                await command.ExecuteAsync(messageDetails);
                 return;
             }
 
             if (_fixedCommands.ContainsKey(messageDetails.FromId))
             {
-                if (!(_fixedCommands[messageDetails.FromId].IsComplete))
+                if (!_fixedCommands[messageDetails.FromId].IsComplete)
                 {
-                    await _fixedCommands[messageDetails.FromId].ExecuteAsync(_botClient.Client, messageDetails, _remindRepository);
+                    await _fixedCommands[messageDetails.FromId].ExecuteAsync(messageDetails);
                 }
                 if (_fixedCommands[messageDetails.FromId].IsComplete)
                     _fixedCommands.Remove(messageDetails.FromId);

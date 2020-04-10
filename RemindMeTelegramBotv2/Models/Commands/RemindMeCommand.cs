@@ -14,83 +14,121 @@ namespace RemindMeTelegramBotv2.Models.Commands
 
         private static Dictionary<int, RemindEntity> _remindEntities;
         private readonly IRemindService _remindService;
+        private readonly IBotClient _botClient;
+        private readonly IDbRepository<RemindEntity> _dbRepository;
 
-        public RemindMeCommand(IRemindService remindService)
+        public RemindMeCommand(IRemindService remindService, IBotClient botClient,
+            IDbRepository<RemindEntity> dbRepository)
         {
             _remindEntities = new Dictionary<int, RemindEntity>();
             _remindService = remindService;
+            _botClient = botClient;
+            _dbRepository = dbRepository;
         }
 
-        public override async Task ExecuteAsync(TelegramBotClient botClient, MessageDetails message,
-            IDbRepository<RemindEntity> remindRepository)
+        public override async Task ExecuteAsync(MessageDetails message)
         {
             IsComplete = false;
-            RemindEntity remindEntity = null;
-            RemindEntity.States state = RemindEntity.States.Start;
+            var botClient = _botClient.Client;
+            var state = RemindEntity.States.Start;
 
             if (_remindEntities.ContainsKey(message.FromId))
             {
-                remindEntity = _remindEntities[message.FromId];
-                state = remindEntity.State;
+                state = _remindEntities[message.FromId].State;
             }
 
-
-            if (message.MessageText == "/reset")
-            {
-                await botClient.SendTextMessageAsync(message.ChatId, "Отмена...");
-                if (remindEntity != null)
-                    _remindEntities.Remove(message.FromId);
-                IsComplete = true;
-                return;
-            }
+            if (await Reset(message)) return;
 
             switch (state)
             {
                 case RemindEntity.States.Start:
-                    var newRemind = new RemindEntity(message.FromId, message.Username, message.ChatId)
-                    {
-                        StartTime = DateTime.Now.ToUniversalTime(),
-                        RemindText = ""
-                    };
-                    await botClient.SendTextMessageAsync(message.ChatId, "О чём вам напомнить? (Сброс диалога, команда /reset)");
-                    newRemind.State = RemindEntity.States.EnterText;
-                    _remindEntities.Add(message.FromId,newRemind);
+                    await botClient.SendTextMessageAsync(message.ChatId,
+                        "О чём вам напомнить? (Сброс диалога, команда /reset)");
+                    _remindEntities.Add(message.FromId, StartStage(message));
                     break;
+
                 case RemindEntity.States.EnterText:
-                    if (remindEntity != null)
+                    if (_remindEntities.ContainsKey(message.FromId))
                     {
-                        remindEntity.RemindText = message.MessageText;
+                        _remindEntities[message.FromId] = EnterTextStage(message);
                         await botClient.SendTextMessageAsync(message.ChatId,
                             $"Когда напомнить? (Введите в формате дд.мм.гггг чч:мм)\n Например: {DateTime.Now:dd.MM.yyyy HH:mm})");
-                        remindEntity.State = RemindEntity.States.EnterDate;
-                        _remindEntities[message.FromId] = remindEntity;
                     }
-
                     break;
+
                 case RemindEntity.States.EnterDate:
-                    string[] formats = { "dd/MM/yyyy HH:mm", "dd-MM-yyyy HH:mm", "dd:MM:yyyy HH:mm", "dd.MM.yyyy HH:mm",
-                        "dd/MM/yy HH:mm" };
-                    if (DateTime.TryParseExact(message.MessageText, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var outDate))
+                    if (_remindEntities.ContainsKey(message.FromId))
                     {
-                        if (remindEntity != null)
-                        {
-                            remindEntity.EndTime = outDate.ToUniversalTime();
-                            remindRepository.Create(remindEntity);
-                            await botClient.SendTextMessageAsync(message.ChatId, "Создал напоминание");
-                            remindEntity.State = RemindEntity.States.Created;
-                            _remindService.TryAddToRemindsSequence(remindEntity);
-                            _remindEntities.Remove(message.FromId);
-                        }
+                        var remind = EnterDateStage(message);
+                        _dbRepository.Create(remind);
+                        await botClient.SendTextMessageAsync(message.ChatId, "Создал напоминание");
+                        _remindEntities.Remove(message.FromId);
+                        _remindService.TryAddToRemindsSequence(remind);
                         IsComplete = true;
-                    }
-                    else
-                    {
-                        await botClient.SendTextMessageAsync(message.ChatId, $"Вы не правильно ввели дату, напоминаю (Введите в формате дд.мм.гггг чч:мм)\n Например: {DateTime.Now:dd.MM.yyyy HH:mm})");
                     }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private static RemindEntity EnterDateStage(MessageDetails message)
+        {
+            string[] formats =
+            {
+                "dd/MM/yyyy HH:mm", "dd-MM-yyyy HH:mm", "dd:MM:yyyy HH:mm", "dd.MM.yyyy HH:mm",
+                "dd/MM/yy HH:mm"
+            };
+
+            if (DateTime.TryParseExact(message.MessageText, formats, CultureInfo.InvariantCulture, DateTimeStyles.None,
+                out var outDate))
+            {
+                var newRemindEntity = new RemindEntity(message.FromId, message.Username, message.ChatId)
+                {
+                    RemindText = _remindEntities[message.FromId].RemindText,
+                    State = RemindEntity.States.Created,
+                    EndTime = outDate.ToUniversalTime()
+                };
+                return newRemindEntity;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        //ToDo Сделать ресет в UpdateService
+        private async Task<bool> Reset(MessageDetails message)
+        {
+            if (message.MessageText == "/reset")
+            {
+                await _botClient.Client.SendTextMessageAsync(message.ChatId, "Отмена...");
+                if (_remindEntities[message.FromId] != null)
+                    _remindEntities.Remove(message.FromId);
+                IsComplete = true;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static RemindEntity EnterTextStage(MessageDetails message)
+        {
+            var newRemindEntity = new RemindEntity(message.FromId, message.Username, message.ChatId)
+            {
+                RemindText = message.MessageText,
+                State = RemindEntity.States.EnterDate
+            };
+            return newRemindEntity;
+        }
+
+
+        private static RemindEntity StartStage(MessageDetails message)
+        {
+            return new RemindEntity(message.FromId, message.Username, message.ChatId)
+            {
+                State = RemindEntity.States.EnterText
+            };
         }
     }
 }

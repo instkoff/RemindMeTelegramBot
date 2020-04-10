@@ -8,7 +8,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
     {
         public abstract string Name { get; }
         public bool IsComplete;
-        public abstract Task ExecuteAsync(TelegramBotClient botClient, MessageDetails message, IDbRepository<RemindEntity> remindRepository);
+        public abstract Task ExecuteAsync(MessageDetails message);
 
         public bool Contains(string command)
         {

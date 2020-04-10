@@ -5,7 +5,6 @@ namespace RemindMeTelegramBotv2.Models
     public class RemindEntity : BaseEntity
     {
         public DateTime EndTime { get; set; }
-        public DateTime StartTime { get; set; }
         public string RemindText { get; set; }
         public string TelegramUsername { get; set; }
         public long TelegramChatId { get; set; }

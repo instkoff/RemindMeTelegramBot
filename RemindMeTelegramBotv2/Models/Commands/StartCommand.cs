@@ -1,6 +1,4 @@
 ﻿using System.Threading.Tasks;
-using RemindMeTelegramBotv2.DAL;
-using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RemindMeTelegramBotv2.Models.Commands
@@ -9,8 +7,14 @@ namespace RemindMeTelegramBotv2.Models.Commands
     {
         public override string Name => "/start";
 
-        public override async Task ExecuteAsync(TelegramBotClient botClient, MessageDetails message,
-            IDbRepository<RemindEntity> repository)
+        private readonly IBotClient _botClient;
+
+        public StartCommand(IBotClient botClient)
+        {
+            _botClient = botClient;
+        }
+
+        public override async Task ExecuteAsync(MessageDetails message)
         {
             IsComplete = false;
             var inlineKeyboard = new InlineKeyboardMarkup(new[]
@@ -28,7 +32,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
                             //InlineKeyboardButton.WithCallbackData("2.2", "22"),
                         }
                     });
-            await botClient.SendTextMessageAsync(message.ChatId,"Клавиатура", replyMarkup: inlineKeyboard);
+            await _botClient.Client.SendTextMessageAsync(message.ChatId,"Клавиатура", replyMarkup: inlineKeyboard);
             IsComplete = true;
         }
     }

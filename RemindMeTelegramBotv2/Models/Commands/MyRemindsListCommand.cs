@@ -8,22 +8,29 @@ namespace RemindMeTelegramBotv2.Models.Commands
     public class MyRemindsListCommand : Command
     {
         public override string Name { get; } = "/myremindslist";
+        private readonly IBotClient _botClient;
+        private readonly IDbRepository<RemindEntity> _dbRepository;
 
-        public override async Task ExecuteAsync(TelegramBotClient botClient, MessageDetails message,
-            IDbRepository<RemindEntity> remindRepository)
+        public MyRemindsListCommand(IBotClient botClient, IDbRepository<RemindEntity> dbRepository)
         {
-            var remindsList = await remindRepository.GetListAsync(r => r.TelegramUsernameId == message.FromId && r.State != RemindEntity.States.Completed);
+            _botClient = botClient;
+            _dbRepository = dbRepository;
+        }
+
+        public override async Task ExecuteAsync(MessageDetails message)
+        {
+            var remindsList = await _dbRepository.GetListAsync(r => r.TelegramUsernameId == message.FromId && r.State != RemindEntity.States.Completed);
             if (remindsList.Count != 0)
             {
                 StringBuilder remindsBuilder = new StringBuilder();
                 remindsBuilder.Append($"Ваши напоминания {message.Username}: \n");
                 remindsList.ForEach(r => { remindsBuilder.Append($"{r.EndTime} напомнить о: {r.RemindText} \n"); });
-                await botClient.SendTextMessageAsync(message.ChatId, remindsBuilder.ToString());
+                await _botClient.Client.SendTextMessageAsync(message.ChatId, remindsBuilder.ToString());
                 IsComplete = true;
             }
             else
             {
-                await botClient.SendTextMessageAsync(message.ChatId, "Список пуст");
+                await _botClient.Client.SendTextMessageAsync(message.ChatId, "Список пуст");
                 IsComplete = true;
             }
 
