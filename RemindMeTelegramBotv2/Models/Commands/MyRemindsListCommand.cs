@@ -19,10 +19,10 @@ namespace RemindMeTelegramBotv2.Models.Commands
 
         public override async Task ExecuteAsync(MessageDetails message)
         {
-            var remindsList = await _dbRepository.GetListAsync(r => r.TelegramUsernameId == message.FromId && r.State != RemindEntity.States.Completed);
+            var remindsList = await _dbRepository.GetListAsync(r => r.TelegramUsernameId == message.FromId && r.State != RemindState.Completed);
             if (remindsList.Count != 0)
             {
-                int i=0;
+                int i=1;
                 StringBuilder remindsBuilder = new StringBuilder();
                 remindsBuilder.Append($"Ваши напоминания {message.Username}: \n");
                 remindsList.ForEach(r => { remindsBuilder.Append($"{i++}) {r.EndTime} напомнить о: {r.RemindText} \n"); });

@@ -1,4 +1,3 @@
-using System.Collections.Specialized;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -6,8 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Quartz;
-using Quartz.Impl;
 using RemindMeTelegramBotv2.DAL;
 using RemindMeTelegramBotv2.Models;
 using RemindMeTelegramBotv2.Models.Commands;
@@ -45,7 +42,7 @@ namespace RemindMeTelegramBotv2
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IRemindService remindService, ISchedulerService schedulerService)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ISchedulerService schedulerService)
         {
             if (env.IsDevelopment())
             {

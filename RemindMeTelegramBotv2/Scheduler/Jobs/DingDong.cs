@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Quartz;
 using RemindMeTelegramBotv2.DAL;
 using RemindMeTelegramBotv2.Models;
+using RemindMeTelegramBotv2.Models.Commands;
 using RemindMeTelegramBotv2.Services;
 
 namespace RemindMeTelegramBotv2.Scheduler.Jobs
@@ -28,11 +29,11 @@ namespace RemindMeTelegramBotv2.Scheduler.Jobs
                     if (remind.EndTime <= now)
                     {
                         await _botClient.Client.SendTextMessageAsync(remind.TelegramChatId, remind.RemindText);
-                        remind.State = RemindEntity.States.Completed;
+                        remind.State = RemindState.Completed;
                         _dbRepository.Update(remind.Id, remind);
                     }
                 }
-                _remindService.CurrentReminds.RemoveAll(r => r.State == RemindEntity.States.Completed);
+                _remindService.CurrentReminds.RemoveAll(r => r.State == RemindState.Completed);
             }
         }
     }

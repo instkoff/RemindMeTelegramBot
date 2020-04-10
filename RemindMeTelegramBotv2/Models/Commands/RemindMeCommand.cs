@@ -30,7 +30,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
         {
             IsComplete = false;
             var botClient = _botClient.Client;
-            var state = RemindEntity.States.Start;
+            var state = RemindState.Start;
 
             if (_remindEntities.ContainsKey(message.FromId))
             {
@@ -41,13 +41,13 @@ namespace RemindMeTelegramBotv2.Models.Commands
 
             switch (state)
             {
-                case RemindEntity.States.Start:
+                case RemindState.Start:
                     await botClient.SendTextMessageAsync(message.ChatId,
                         "О чём вам напомнить? (Сброс диалога, команда /reset)");
                     _remindEntities.Add(message.FromId, StartStage(message));
                     break;
 
-                case RemindEntity.States.EnterText:
+                case RemindState.EnterText:
                     if (_remindEntities.ContainsKey(message.FromId))
                     {
                         _remindEntities[message.FromId] = EnterTextStage(message);
@@ -56,15 +56,22 @@ namespace RemindMeTelegramBotv2.Models.Commands
                     }
                     break;
 
-                case RemindEntity.States.EnterDate:
+                case RemindState.EnterDate:
                     if (_remindEntities.ContainsKey(message.FromId))
                     {
                         var remind = EnterDateStage(message);
-                        _dbRepository.Create(remind);
-                        await botClient.SendTextMessageAsync(message.ChatId, "Создал напоминание");
-                        _remindEntities.Remove(message.FromId);
-                        _remindService.TryAddToRemindsSequence(remind);
-                        IsComplete = true;
+                        if (remind == null)
+                        {
+                            await botClient.SendTextMessageAsync(message.ChatId, $"Что-то Вы ввели не так...\n Напоминаю: (Введите в формате дд.мм.гггг чч:мм)\n Например: {DateTime.Now:dd.MM.yyyy HH:mm})");
+                        }
+                        else
+                        {
+                            _dbRepository.Create(remind);
+                            await botClient.SendTextMessageAsync(message.ChatId, "Создал напоминание");
+                            _remindEntities.Remove(message.FromId);
+                            _remindService.TryAddToRemindsSequence(remind);
+                            IsComplete = true;
+                        }
                     }
                     break;
                 default:
@@ -86,15 +93,13 @@ namespace RemindMeTelegramBotv2.Models.Commands
                 var newRemindEntity = new RemindEntity(message.FromId, message.Username, message.ChatId)
                 {
                     RemindText = _remindEntities[message.FromId].RemindText,
-                    State = RemindEntity.States.Created,
+                    State = RemindState.Created,
                     EndTime = outDate.ToUniversalTime()
                 };
                 return newRemindEntity;
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         //ToDo Сделать ресет в UpdateService
@@ -117,7 +122,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
             var newRemindEntity = new RemindEntity(message.FromId, message.Username, message.ChatId)
             {
                 RemindText = message.MessageText,
-                State = RemindEntity.States.EnterDate
+                State = RemindState.EnterDate
             };
             return newRemindEntity;
         }
@@ -127,7 +132,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
         {
             return new RemindEntity(message.FromId, message.Username, message.ChatId)
             {
-                State = RemindEntity.States.EnterText
+                State = RemindState.EnterText
             };
         }
     }

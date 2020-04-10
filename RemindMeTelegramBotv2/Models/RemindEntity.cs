@@ -1,4 +1,5 @@
 ﻿using System;
+using RemindMeTelegramBotv2.Models.Commands;
 
 namespace RemindMeTelegramBotv2.Models
 {
@@ -10,21 +11,11 @@ namespace RemindMeTelegramBotv2.Models
         public long TelegramChatId { get; set; }
         public int TelegramUsernameId { get; set; }
 
-        public States State { get; set; }
-
-        public enum States
-        {
-            Start,
-            EnterText,
-            EnterDate,
-            Created,
-            InQueue,
-            Completed
-        }
+        public RemindState State { get; set; }
 
         public RemindEntity(int usernameId, string username, long chatId)
         {
-            State = States.Start;
+            State = RemindState.Start;
             TelegramUsernameId = usernameId;
             TelegramUsername = username;
             TelegramChatId = chatId;

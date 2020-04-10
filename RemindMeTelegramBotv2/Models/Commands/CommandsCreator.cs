@@ -24,7 +24,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
                     return new RemindMeCommand(_remindService, _botClient, _dbRepository);
                 case "/myremindslist":
                     return new MyRemindsListCommand(_botClient,_dbRepository);
-                case "/delete_remind":
+                case "/delremind":
                     return new DeleteRemindCommand(_botClient, _dbRepository, this);
                 default:
                     return null;

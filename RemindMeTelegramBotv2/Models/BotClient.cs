@@ -19,7 +19,8 @@ namespace RemindMeTelegramBotv2.Models
             {
                 "/start",
                 "/addremind",
-                "/myremindslist"
+                "/myremindslist",
+                "/delremind"
             };
         }
 
