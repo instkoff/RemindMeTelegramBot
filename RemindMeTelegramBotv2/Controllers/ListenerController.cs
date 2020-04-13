@@ -7,6 +7,9 @@ using Telegram.Bot.Types.Enums;
 
 namespace RemindMeTelegramBotv2.Controllers
 {
+    /// <summary>
+    /// Контроллер обработки ответов от бота
+    /// </summary>
     [Route("api/listener")]
     public class ListenerController : Controller
     {
@@ -21,6 +24,8 @@ namespace RemindMeTelegramBotv2.Controllers
         public async Task<IActionResult> PostUpdate([FromBody]Update update)
         {
             MessageDetails messageDetails;
+            //Получаем данные в зависимости от типа пришедшего сообщения
+            //ToDo Сделать обработку голосового сообщения.
             switch (update.Type)
             {
                 case UpdateType.Message:

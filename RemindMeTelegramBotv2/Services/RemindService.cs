@@ -4,6 +4,9 @@ using RemindMeTelegramBotv2.Models;
 
 namespace RemindMeTelegramBotv2.Services
 {
+    /// <summary>
+    /// Сервис для работы с напоминаниями
+    /// </summary>
     public class RemindService : IRemindService
     {
         public List<RemindEntity> CurrentReminds { get; }
@@ -12,6 +15,11 @@ namespace RemindMeTelegramBotv2.Services
         {
             CurrentReminds = new List<RemindEntity>();
         }
+
+        /// <summary>
+        /// Попытка добавить вновь созданное напоминание с текущий список
+        /// </summary>
+        /// <param name="newRemindEntity"></param>
 
         public void TryAddToRemindsSequence(RemindEntity newRemindEntity)
         {

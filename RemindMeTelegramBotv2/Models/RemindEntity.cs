@@ -3,6 +3,9 @@ using RemindMeTelegramBotv2.Models.Commands;
 
 namespace RemindMeTelegramBotv2.Models
 {
+    /// <summary>
+    /// Класс напоминания
+    /// </summary>
     public class RemindEntity : BaseEntity
     {
         public DateTime EndTime { get; set; }

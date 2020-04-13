@@ -1,5 +1,8 @@
 ﻿namespace RemindMeTelegramBotv2.Models
 {
+    /// <summary>
+    /// Детали пришедшего сообщения
+    /// </summary>
     public class MessageDetails
     {
         public int FromId { get; }

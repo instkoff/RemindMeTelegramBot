@@ -2,6 +2,9 @@
 
 namespace RemindMeTelegramBotv2.Scheduler
 {
+    /// <summary>
+    /// Интерфейс для работы с шедулером
+    /// </summary>
     public interface ISchedulerService
     {
         Task Init();

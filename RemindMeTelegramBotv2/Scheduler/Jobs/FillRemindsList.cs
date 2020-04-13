@@ -8,6 +8,9 @@ using RemindMeTelegramBotv2.Services;
 
 namespace RemindMeTelegramBotv2.Scheduler.Jobs
 {
+    /// <summary>
+    /// Джоба заполнения списка напоминаний
+    /// </summary>
     public class FillRemindsList : IJob
     {
         private readonly IDbRepository<RemindEntity> _dbRepository;

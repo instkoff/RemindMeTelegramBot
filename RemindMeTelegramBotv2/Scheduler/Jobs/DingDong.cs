@@ -8,6 +8,9 @@ using RemindMeTelegramBotv2.Services;
 
 namespace RemindMeTelegramBotv2.Scheduler.Jobs
 {
+    /// <summary>
+    /// Джоба срабатывания напоминания
+    /// </summary>
     public class DingDong : IJob
     {
         private readonly IBotClient _botClient;

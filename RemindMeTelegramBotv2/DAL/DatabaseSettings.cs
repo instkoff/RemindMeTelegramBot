@@ -1,5 +1,8 @@
 ﻿namespace RemindMeTelegramBotv2.DAL
 {
+    /// <summary>
+    /// Класс настройки БД
+    /// </summary>
     public class DatabaseSettings : IDatabaseSettings
     {
         public string RemindsCollectionName { get; set; }

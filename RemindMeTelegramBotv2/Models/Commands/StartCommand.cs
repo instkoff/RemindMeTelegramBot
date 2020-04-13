@@ -1,15 +1,19 @@
 ﻿using System.Threading.Tasks;
+using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace RemindMeTelegramBotv2.Models.Commands
 {
     public class StartCommand : Command
     {
+        /// <summary>
+        /// Команда старта диалога с ботом, вывод меню
+        /// </summary>
         public override string Name => "/start";
 
-        private readonly IBotClient _botClient;
+        private readonly TelegramBotClient _botClient;
 
-        public StartCommand(IBotClient botClient)
+        public StartCommand(TelegramBotClient botClient)
         {
             _botClient = botClient;
         }
@@ -32,7 +36,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
                             //InlineKeyboardButton.WithCallbackData("2.2", "22"),
                         }
                     });
-            await _botClient.Client.SendTextMessageAsync(message.ChatId,"Клавиатура", replyMarkup: inlineKeyboard);
+            await _botClient.SendTextMessageAsync(message.ChatId,"Клавиатура", replyMarkup: inlineKeyboard);
             IsComplete = true;
         }
     }

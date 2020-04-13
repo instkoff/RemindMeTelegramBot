@@ -4,6 +4,9 @@ using Telegram.Bot.Types;
 
 namespace RemindMeTelegramBotv2.Services
 {
+    /// <summary>
+    /// Сервис получения информации от бота
+    /// </summary>
     public class GetInfoService : IGetInfoService
     {
         private readonly IBotClient _botClient;

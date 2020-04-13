@@ -8,16 +8,19 @@ using Telegram.Bot;
 
 namespace RemindMeTelegramBotv2.Models.Commands
 {
+    /// <summary>
+    /// Команда добавления напоминания
+    /// </summary>
     public class RemindMeCommand : Command
     {
         public override string Name => "/addremind";
 
         private static Dictionary<int, RemindEntity> _remindEntities;
         private readonly IRemindService _remindService;
-        private readonly IBotClient _botClient;
+        private readonly TelegramBotClient _botClient;
         private readonly IDbRepository<RemindEntity> _dbRepository;
 
-        public RemindMeCommand(IRemindService remindService, IBotClient botClient,
+        public RemindMeCommand(IRemindService remindService, TelegramBotClient botClient,
             IDbRepository<RemindEntity> dbRepository)
         {
             _remindEntities = new Dictionary<int, RemindEntity>();
@@ -29,7 +32,6 @@ namespace RemindMeTelegramBotv2.Models.Commands
         public override async Task ExecuteAsync(MessageDetails message)
         {
             IsComplete = false;
-            var botClient = _botClient.Client;
             var state = RemindState.Start;
 
             if (_remindEntities.ContainsKey(message.FromId))
@@ -38,11 +40,11 @@ namespace RemindMeTelegramBotv2.Models.Commands
             }
 
             if (await Reset(message)) return;
-
+            //В зависимости от состояния, выбираем действие.
             switch (state)
             {
                 case RemindState.Start:
-                    await botClient.SendTextMessageAsync(message.ChatId,
+                    await _botClient.SendTextMessageAsync(message.ChatId,
                         "О чём вам напомнить? (Сброс диалога, команда /reset)");
                     _remindEntities.Add(message.FromId, StartStage(message));
                     break;
@@ -51,7 +53,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
                     if (_remindEntities.ContainsKey(message.FromId))
                     {
                         _remindEntities[message.FromId] = EnterTextStage(message);
-                        await botClient.SendTextMessageAsync(message.ChatId,
+                        await _botClient.SendTextMessageAsync(message.ChatId,
                             $"Когда напомнить? (Введите в формате дд.мм.гггг чч:мм)\n Например: {DateTime.Now:dd.MM.yyyy HH:mm})");
                     }
                     break;
@@ -62,12 +64,12 @@ namespace RemindMeTelegramBotv2.Models.Commands
                         var remind = EnterDateStage(message);
                         if (remind == null)
                         {
-                            await botClient.SendTextMessageAsync(message.ChatId, $"Что-то Вы ввели не так...\n Напоминаю: (Введите в формате дд.мм.гггг чч:мм)\n Например: {DateTime.Now:dd.MM.yyyy HH:mm})");
+                            await _botClient.SendTextMessageAsync(message.ChatId, $"Что-то Вы ввели не так...\n Напоминаю: (Введите в формате дд.мм.гггг чч:мм)\n Например: {DateTime.Now:dd.MM.yyyy HH:mm})");
                         }
                         else
                         {
                             _dbRepository.Create(remind);
-                            await botClient.SendTextMessageAsync(message.ChatId, "Создал напоминание");
+                            await _botClient.SendTextMessageAsync(message.ChatId, "Создал напоминание");
                             _remindEntities.Remove(message.FromId);
                             _remindService.TryAddToRemindsSequence(remind);
                             IsComplete = true;
@@ -79,6 +81,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
             }
         }
 
+        //Шаг 3. Ввод даты срабатывания нопоминания
         private static RemindEntity EnterDateStage(MessageDetails message)
         {
             string[] formats =
@@ -98,25 +101,10 @@ namespace RemindMeTelegramBotv2.Models.Commands
                 };
                 return newRemindEntity;
             }
-
             return null;
         }
 
-        //ToDo Сделать ресет в UpdateService
-        private async Task<bool> Reset(MessageDetails message)
-        {
-            if (message.MessageText == "/reset")
-            {
-                await _botClient.Client.SendTextMessageAsync(message.ChatId, "Отмена...");
-                if (_remindEntities[message.FromId] != null)
-                    _remindEntities.Remove(message.FromId);
-                IsComplete = true;
-                return true;
-            }
-
-            return false;
-        }
-
+        //Шаг 2. Ввод текста
         private static RemindEntity EnterTextStage(MessageDetails message)
         {
             var newRemindEntity = new RemindEntity(message.FromId, message.Username, message.ChatId)
@@ -127,13 +115,28 @@ namespace RemindMeTelegramBotv2.Models.Commands
             return newRemindEntity;
         }
 
-
+        //Шаг 1. Создание нового объекта напоминания
         private static RemindEntity StartStage(MessageDetails message)
         {
             return new RemindEntity(message.FromId, message.Username, message.ChatId)
             {
                 State = RemindState.EnterText
             };
+        }
+
+        //ToDo Сделать отдельную ресет команду
+        private async Task<bool> Reset(MessageDetails message)
+        {
+            if (message.MessageText == "/reset")
+            {
+                await _botClient.SendTextMessageAsync(message.ChatId, "Отмена...");
+                if (_remindEntities[message.FromId] != null)
+                    _remindEntities.Remove(message.FromId);
+                IsComplete = true;
+                return true;
+            }
+
+            return false;
         }
     }
 }

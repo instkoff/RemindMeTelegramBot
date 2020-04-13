@@ -7,6 +7,9 @@ using RemindMeTelegramBotv2.Scheduler.Jobs;
 
 namespace RemindMeTelegramBotv2.Scheduler
 {
+    /// <summary>
+    /// Сервис шедулера
+    /// </summary>
     public class SchedulerService : ISchedulerService
     {
         private readonly IServiceProvider _serviceProvider;
@@ -19,7 +22,10 @@ namespace RemindMeTelegramBotv2.Scheduler
             _serviceProvider = serviceProvider;
             _logger = loggerFactory.CreateLogger(nameof(SchedulerService));
         }
-
+        /// <summary>
+        /// Инициализация
+        /// </summary>
+        /// <returns></returns>
         public async Task Init()
         {
             _quartzScheduler = new QuartzScheduler();

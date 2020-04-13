@@ -4,6 +4,9 @@ using RemindMeTelegramBotv2.Services;
 
 namespace RemindMeTelegramBotv2.Controllers
 {
+    /// <summary>
+    /// Контроллер проверки работоспособности бота
+    /// </summary>
     [Route("api/getinfo")]
     public class GetInfoController :Controller
     {

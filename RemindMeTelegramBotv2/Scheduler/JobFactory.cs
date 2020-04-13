@@ -2,10 +2,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Quartz.Spi;
-using RemindMeTelegramBotv2.Scheduler.Jobs;
 
 namespace RemindMeTelegramBotv2.Scheduler
 {
+    /// <summary>
+    /// Создатель джоб
+    /// </summary>
     public class JobFactory : IJobFactory
     {
         private readonly IServiceProvider _serviceProvider;
@@ -26,7 +28,7 @@ namespace RemindMeTelegramBotv2.Scheduler
             return (IJob)scope.ServiceProvider.GetService(bundle.JobDetail.JobType);
         }
 
-        /// <inheritdoc />
+
         public void ReturnJob(IJob job)
         {
             // ReSharper disable once SuspiciousTypeConversion.Global

@@ -6,6 +6,9 @@ using RemindMeTelegramBotv2.Models.Commands;
 
 namespace RemindMeTelegramBotv2.Services
 {
+    /// <summary>
+    /// Сервис получения обновлений от бота.
+    /// </summary>
     public class UpdateService : IUpdateService
     {
         private readonly IBotClient _botClient;
