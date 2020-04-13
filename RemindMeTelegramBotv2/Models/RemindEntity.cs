@@ -16,6 +16,11 @@ namespace RemindMeTelegramBotv2.Models
 
         public RemindState State { get; set; }
 
+        public RemindEntity()
+        {
+            State = RemindState.Start;
+        }
+
         public RemindEntity(int usernameId, string username, long chatId)
         {
             State = RemindState.Start;

@@ -30,7 +30,7 @@ namespace RemindMeTelegramBotv2.Models
         //Инициализация бота
         private async Task<TelegramBotClient> GetClient()
         {
-            var botclient = new TelegramBotClient(BotSettings.Key,new HttpToSocks5Proxy("Здесь IP и порт прокси"));
+            var botclient = new TelegramBotClient(BotSettings.Key,new HttpToSocks5Proxy("92.119.161.16", 60530, "5r03ZRswaw", "9oLvv4rfMI"));
             await botclient.DeleteWebhookAsync();
             await botclient.SetWebhookAsync(BotSettings.Url);
             return botclient;

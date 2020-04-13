@@ -16,20 +16,20 @@ namespace RemindMeTelegramBotv2.Models.Commands
         private readonly TelegramBotClient _botClient;
         private readonly IDbRepository<RemindEntity> _dbRepository;
         private readonly ICommandsCreator _commandsCreator;
-        private static Dictionary<int, States> _stateStorage;
+        private static Dictionary<int, CommandState> _stateStorage;
 
         public DeleteRemindCommand(TelegramBotClient botClient, IDbRepository<RemindEntity> dbRepository, ICommandsCreator commandsCreator)
         {
             _botClient = botClient;
             _dbRepository = dbRepository;
             _commandsCreator = commandsCreator;
-            _stateStorage = new Dictionary<int, States>();
+            _stateStorage = new Dictionary<int, CommandState>();
         }
 
         public override async Task ExecuteAsync(MessageDetails message)
         {
             IsComplete = false;
-            var state = States.Stage1;
+            var state = CommandState.Stage1;
 
             if (_stateStorage.ContainsKey(message.FromId))
             {
@@ -38,13 +38,13 @@ namespace RemindMeTelegramBotv2.Models.Commands
 
             switch (state)
             {
-                case States.Stage1:
+                case CommandState.Stage1:
                     await _botClient.SendTextMessageAsync(message.FromId, "Какое напоминание удалить? \n Введите номер:");
                     var command = _commandsCreator.CreateCommand("/myremindslist");
                     await command.ExecuteAsync(message);
-                    _stateStorage.Add(message.FromId, States.Stage2);
+                    _stateStorage.Add(message.FromId, CommandState.Stage2);
                     break;
-                case States.Stage2:
+                case CommandState.Stage2:
                     var remindsList = await _dbRepository.GetListAsync(r => r.TelegramUsernameId == message.FromId && r.State != RemindState.Completed);
                     if (int.TryParse(message.MessageText, out var index))
                     {

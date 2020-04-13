@@ -3,10 +3,11 @@
     /// <summary>
     /// Различные состояния команд
     /// </summary>
-    public enum States
+    public enum CommandState
     {
         Stage1,
-        Stage2
+        Stage2,
+        Stage3
     }
     public enum RemindState
     {
