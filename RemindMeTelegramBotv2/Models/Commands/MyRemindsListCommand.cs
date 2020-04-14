@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using RemindMeTelegramBotv2.DAL;
 using Telegram.Bot;
@@ -8,7 +10,6 @@ namespace RemindMeTelegramBotv2.Models.Commands
     /// <summary>
     /// Команда получения списка напоминаний пользователя
     /// </summary>
-    //ToDo Добавить часовые пояса
     public class MyRemindsListCommand : Command
     {
         public override string Name { get; } = "/myremindslist";
@@ -23,14 +24,22 @@ namespace RemindMeTelegramBotv2.Models.Commands
 
         public override async Task ExecuteAsync(MessageDetails message)
         {
+            IsComplete = false;
             var remindsList = await _dbRepository.GetListAsync(r => r.TelegramUsernameId == message.FromId && r.State != RemindState.Completed);
-            if (remindsList.Count != 0)
+            if (remindsList.Any())
             {
-                int i=1;
-                StringBuilder remindsBuilder = new StringBuilder();
-                remindsBuilder.Append($"Ваши напоминания {message.Username}: \n");
-                remindsList.ForEach(r => { remindsBuilder.Append($"{i++}) {r.EndTime} напомнить о: {r.RemindText} \n"); });
-                await _botClient.SendTextMessageAsync(message.ChatId, remindsBuilder.ToString());
+                int i = 1;
+                StringBuilder remindsListString = new StringBuilder();
+                remindsListString.Append($"Ваши напоминания {message.Username}: \n");
+                foreach (var r in remindsList)
+                {
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById(r.TimeZoneId);
+                    var convertedEndTime = TimeZoneInfo.ConvertTimeFromUtc(r.EndTime, timeZone);
+                    var utcOffsetDisplayName = timeZone.DisplayName.Remove(11);
+                    remindsListString.Append($"{i++}) {convertedEndTime} {utcOffsetDisplayName} напомнить о: {r.RemindText} \n");
+                }
+
+                await _botClient.SendTextMessageAsync(message.ChatId, remindsListString.ToString());
                 IsComplete = true;
             }
             else
@@ -40,5 +49,8 @@ namespace RemindMeTelegramBotv2.Models.Commands
             }
 
         }
+
+
     }
 }
+

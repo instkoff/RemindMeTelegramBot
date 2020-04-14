@@ -23,6 +23,8 @@ namespace RemindMeTelegramBotv2.Models.Commands
             {
                 case "/start":
                     return new StartCommand(_botClient.Client);
+                case "/send_keyboard":
+                    return new SendKeyboardCommand(_botClient.Client);
                 case "/addremind":
                     return new RemindMeCommand(_remindService, _botClient.Client, _dbRepository);
                 case "/myremindslist":

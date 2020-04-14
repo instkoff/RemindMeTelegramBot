@@ -7,13 +7,12 @@
     {
         Stage1,
         Stage2,
-        Stage3
+        Stage3,
+        Stage4
     }
     public enum RemindState
     {
-        Start,
-        EnterText,
-        EnterDate,
+        Creation,
         Created,
         InQueue,
         Completed

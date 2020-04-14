@@ -14,7 +14,7 @@ namespace RemindMeTelegramBotv2.Services
         private readonly IBotClient _botClient;
         private readonly ICommandsCreator _commandsCreator;
 
-        private static readonly Dictionary<int,Command> _fixedCommands = new Dictionary<int, Command>();
+        private static readonly Dictionary<int, Command> FixedCommands = new Dictionary<int, Command>();
 
 
         public UpdateService(IBotClient botClient, ICommandsCreator commandsCreator)
@@ -28,36 +28,32 @@ namespace RemindMeTelegramBotv2.Services
             if (messageDetails == null)
                 return;
 
-            var command = _botClient.Commands.Contains(messageDetails.MessageText) ? _commandsCreator.CreateCommand(messageDetails.MessageText) : null;
-
-            if (command != null)
+            if (FixedCommands.ContainsKey(messageDetails.FromId))
             {
-                if (_fixedCommands.ContainsKey(messageDetails.FromId))
+                if (!FixedCommands[messageDetails.FromId].IsComplete)
                 {
-                    if (!_fixedCommands[messageDetails.FromId].IsComplete)
-                    {
-                        await _botClient.Client.SendTextMessageAsync(messageDetails.ChatId,
-                            "Вы повторно ввели команду, закончите или сбросьте текущую");
-                        return;
-                    }
-                    if (_fixedCommands[messageDetails.FromId].IsComplete)
-                        _fixedCommands.Remove(messageDetails.FromId);
+                    await FixedCommands[messageDetails.FromId].ExecuteAsync(messageDetails);
                 }
 
-                _fixedCommands.Add(messageDetails.FromId, command);
-                await command.ExecuteAsync(messageDetails);
-                return;
+                if (FixedCommands[messageDetails.FromId].IsComplete)
+                    FixedCommands.Remove(messageDetails.FromId);
+
+
+            }
+            else
+            {
+                var command = _botClient.Commands.Contains(messageDetails.MessageText) ? _commandsCreator.CreateCommand(messageDetails.MessageText) : null;
+                if (command != null)
+                {
+                    FixedCommands.Add(messageDetails.FromId, command);
+                    await command.ExecuteAsync(messageDetails);
+
+                    if (FixedCommands[messageDetails.FromId].IsComplete)
+                        FixedCommands.Remove(messageDetails.FromId);
+
+                }
             }
 
-            if (_fixedCommands.ContainsKey(messageDetails.FromId))
-            {
-                if (!_fixedCommands[messageDetails.FromId].IsComplete)
-                {
-                    await _fixedCommands[messageDetails.FromId].ExecuteAsync(messageDetails);
-                }
-                if (_fixedCommands[messageDetails.FromId].IsComplete)
-                    _fixedCommands.Remove(messageDetails.FromId);
-            }
         }
     }
 }

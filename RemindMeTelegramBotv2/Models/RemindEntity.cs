@@ -9,6 +9,7 @@ namespace RemindMeTelegramBotv2.Models
     public class RemindEntity : BaseEntity
     {
         public DateTime EndTime { get; set; }
+        public string TimeZoneId { get; set; }
         public string RemindText { get; set; }
         public string TelegramUsername { get; set; }
         public long TelegramChatId { get; set; }
@@ -18,12 +19,12 @@ namespace RemindMeTelegramBotv2.Models
 
         public RemindEntity()
         {
-            State = RemindState.Start;
+            State = RemindState.Creation;
         }
 
         public RemindEntity(int usernameId, string username, long chatId)
         {
-            State = RemindState.Start;
+            State = RemindState.Creation;
             TelegramUsernameId = usernameId;
             TelegramUsername = username;
             TelegramChatId = chatId;

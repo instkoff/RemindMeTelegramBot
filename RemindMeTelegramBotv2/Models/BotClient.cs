@@ -22,6 +22,7 @@ namespace RemindMeTelegramBotv2.Models
             {
                 //Список имеющихся у бота команд
                 "/start",
+                "/send_keyboard",
                 "/addremind",
                 "/myremindslist",
                 "/delremind"

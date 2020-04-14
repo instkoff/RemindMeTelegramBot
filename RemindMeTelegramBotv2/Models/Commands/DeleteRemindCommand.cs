@@ -16,7 +16,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
         private readonly TelegramBotClient _botClient;
         private readonly IDbRepository<RemindEntity> _dbRepository;
         private readonly ICommandsCreator _commandsCreator;
-        private static Dictionary<int, CommandState> _stateStorage;
+        private readonly Dictionary<int, CommandState> _stateStorage;
 
         public DeleteRemindCommand(TelegramBotClient botClient, IDbRepository<RemindEntity> dbRepository, ICommandsCreator commandsCreator)
         {

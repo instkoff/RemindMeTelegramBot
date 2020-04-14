@@ -15,7 +15,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
     {
         public override string Name => "/addremind";
 
-        private static Dictionary<int, CommandState> _commandStates;
+        private static Dictionary<int, CommandState> _stateStorage;
         private readonly IRemindService _remindService;
         private readonly TelegramBotClient _botClient;
         private readonly IDbRepository<RemindEntity> _dbRepository;
@@ -24,7 +24,7 @@ namespace RemindMeTelegramBotv2.Models.Commands
         public RemindMeCommand(IRemindService remindService, TelegramBotClient botClient,
             IDbRepository<RemindEntity> dbRepository)
         {
-            _commandStates = new Dictionary<int, CommandState>();
+            _stateStorage = new Dictionary<int, CommandState>();
             _remindBuilder = new RemindBuilder();
             _remindService = remindService;
             _botClient = botClient;
@@ -36,9 +36,9 @@ namespace RemindMeTelegramBotv2.Models.Commands
             IsComplete = false;
             var state = CommandState.Stage1;
 
-            if (_commandStates.ContainsKey(message.FromId))
+            if (_stateStorage.ContainsKey(message.FromId))
             {
-                state = _commandStates[message.FromId];
+                state = _stateStorage[message.FromId];
             }
 
             if (message.MessageText == "/reset")
@@ -51,33 +51,47 @@ namespace RemindMeTelegramBotv2.Models.Commands
             switch (state)
             {
                 case CommandState.Stage1:
-                    await _botClient.SendTextMessageAsync(message.ChatId,
-                        "О чём вам напомнить? (Сброс диалога, команда /reset)");
+                    await _botClient.SendTextMessageAsync(message.FromId, 
+                        "Для начала, введите Ваш часовой пояс: \n Например, +07 или -04 или +10:45");
                     _remindBuilder.StartStage(message);
-                    _commandStates.Add(message.FromId, CommandState.Stage2);
+                    _stateStorage.Add(message.FromId, CommandState.Stage2);
                     break;
-
                 case CommandState.Stage2:
-                    _remindBuilder.EnterTextStage(message);
+                    if (_remindBuilder.EnterTimeZone(message))
+                    {
                         await _botClient.SendTextMessageAsync(message.ChatId,
-                            $"Когда напомнить? (Введите в формате дд.мм.гггг чч:мм)\n Например: {DateTime.Now:dd.MM.yyyy HH:mm})");
-                    _commandStates[message.FromId] = CommandState.Stage3;
+                            "О чём вам напомнить? (Сброс диалога, команда /reset)");
+                        _stateStorage[message.FromId] = CommandState.Stage3;
+                    }
+                    else
+                    {
+                        await _botClient.SendTextMessageAsync(message.ChatId,
+                            "Что-то вы ввели не так, напоминаю: \n Введите Ваш часовой пояс: \n Например, +07 или -04 или +10:45");
+                    }
                     break;
 
                 case CommandState.Stage3:
+                    _remindBuilder.EnterTextStage(message);
+                        await _botClient.SendTextMessageAsync(message.ChatId,
+                            $"Когда напомнить? (Введите в формате дд.мм.гггг чч:мм)\n Например: {DateTime.Now:dd.MM.yyyy HH:mm})");
+                    _stateStorage[message.FromId] = CommandState.Stage4;
+                    break;
+
+                case CommandState.Stage4:
                     if (_remindBuilder.EnterDateStage(message))
                     {
                         var remind = _remindBuilder.GetRemindEntity();
                         _dbRepository.Create(remind);
                         await _botClient.SendTextMessageAsync(message.ChatId, "Создал напоминание");
-                        _commandStates.Remove(message.FromId);
+                        _stateStorage.Remove(message.FromId);
                         _remindService.TryAddToRemindsSequence(remind);
                         IsComplete = true;
 
                     }
                     else
                     {
-                        await _botClient.SendTextMessageAsync(message.ChatId, $"Что-то Вы ввели не так...\n Напоминаю: (Введите в формате дд.мм.гггг чч:мм)\n Например: {DateTime.Now:dd.MM.yyyy HH:mm})");
+                        await _botClient.SendTextMessageAsync(message.ChatId,
+                            $"Что-то Вы ввели не так...\n Напоминаю: (Введите в формате дд.мм.гггг чч:мм)\n Например: {DateTime.Now:dd.MM.yyyy HH:mm})");
                     }
                     break;
                 default:
@@ -88,8 +102,8 @@ namespace RemindMeTelegramBotv2.Models.Commands
         //ToDo Сделать отдельную ресет команду
         private void Reset(MessageDetails message)
         {
-            if (_commandStates.ContainsKey(message.FromId))
-                    _commandStates.Remove(message.FromId);
+            if (_stateStorage.ContainsKey(message.FromId))
+                    _stateStorage.Remove(message.FromId);
             IsComplete = true;
         }
     }
